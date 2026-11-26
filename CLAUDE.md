@@ -20,6 +20,14 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - Les agents se connectent avec un pseudo-e-mail `<identifiant>@agents.example.com`.
 - Inscription publique Supabase non utilisée par l'appli (comptes créés par la fonction).
 
+## Abonnements (migrations am_abonnements, am_abonnements_droits_lecture)
+- Tables : `am_abonnements` (un par propriétaire : fin, formule essai|pro), `am_paiements` (historique), `am_admins` (fournisseur de l'appli, sans politique : accès par fonctions seulement).
+- Essai de 30 jours créé par le trigger `am_essai_abonnement` à la création d'un point.
+- `am_priv.am_abo_ok(agence, jour)` : saisie permise si jour <= fin et aujourd'hui <= fin + 2 (délai pour la file hors ligne). Ajouté aux politiques d'insertion/suppression d'opérations et d'écriture des journées. Lecture et exports restent permis.
+- RPC : `am_abo_statut(a)` (membres), `am_suis_admin()`, `am_admin_clients()`, `am_admin_prolonger(p, mois, montant, moyen, reference)` (admin ; prolonge depuis max(fin, aujourd'hui)).
+- Côté appli : constante `ABO` (tarifs, `payerWa`, `payerNum`), bandeau d'alerte (rappel 5 jours avant), section « Mon abonnement » dans les réglages, onglet « Administration » visible des admins.
+- Ajouter un admin : `insert into am_admins(user_id) select id from auth.users where email = '...'`.
+
 ## Fonctionnement hors ligne
 File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s.
 
