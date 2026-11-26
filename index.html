@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agence mobile Pro</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1739b8">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: registre de caisse partagé, net et coloré.
+   IDEA: le carnet de caisse du point, relié au téléphone du patron.
+   PICTURE: guichet (saisie + caisse vivante) ; pour le patron, une rangée de cartes, une par point.
+   COLOUR and TYPE: bleu agence, vert caisse, jaune action, rouge alerte ; Archivo.
+   LAYOUT: bandeau, onglets, bandes pleine largeur. */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0e0e0e);--ink:light-dark(#111,#f2f2f2);--mut:light-dark(#666,#9a9a9a);--line:light-dark(#e2e2e2,#2b2b2b);--soft:light-dark(#f4f4f4,#181818);--red:#e4002b;--brand:#1739b8;--brand2:light-dark(#e8edff,#141c3a);--cash:#0b8a4a;--accent:#ffc400;--warm:light-dark(#fff6dc,#1e1a0e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Archivo,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(20px,3.5vw,44px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:clamp(26px,4vw,42px);line-height:1.05;margin:0;font-weight:800;font-stretch:112%;text-wrap:balance}
+h2{font-size:clamp(22px,3vw,30px);line-height:1.1;margin:0 0 14px;font-weight:800;font-stretch:112%;color:var(--brand)}
+h3{font-size:17px;margin:0 0 8px}
+button,input,select,textarea{font:inherit;font-size:16px;color:inherit}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-bottom:2px solid var(--ink);padding:10px 12px;min-height:44px;width:100%;border-radius:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--red);outline-offset:1px}
+button{min-height:44px;padding:0 16px;border:2px solid var(--ink);background:var(--bg);cursor:pointer;font-weight:700;border-radius:4px}
+button.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+button.blk{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+button.red{background:var(--red);border-color:var(--red);color:#fff}
+button.yel{background:var(--accent);border-color:var(--accent);color:#111}
+button.wa{background:#1fa855;border-color:#1fa855;color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+.sm{min-height:36px;padding:0 10px;border-width:1px;font-weight:600}
+.icon{padding:0;width:44px}
+label{display:block;font-size:14px;color:var(--mut);margin-bottom:4px}
+.f{margin-bottom:14px}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.cols3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.msg{min-height:1.5em;font-weight:600;margin:8px 0 0}.msg.err{color:var(--red)}
+.mut{color:var(--mut);font-size:14px}
+/* en-tête */
+header{background:var(--brand);color:#fff;border-top:10px solid var(--accent)}
+header .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between}
+header .sub{color:#dfe6ff;margin:4px 0 0}
+header button{background:transparent;color:#fff;border-color:#fff}
+header button.yel{background:var(--accent);color:#111;border-color:var(--accent)}
+header input,header select{background:#fff;color:#111;border-bottom-color:var(--accent)}
+.dnav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.who{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:#dfe6ff}
+.sync{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);padding:4px 10px;border-radius:999px;font-weight:600;color:#fff}
+.sync i{width:9px;height:9px;border-radius:50%;background:#6ee7a0}.sync.off i{background:var(--accent)}.sync.err i{background:#ff6b81}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--brand);padding:0 max(5vw,16px);background:var(--brand2)}
+nav.tabs button{border:0;border-radius:6px 6px 0 0;background:transparent;color:var(--brand);min-height:46px}
+nav.tabs button[aria-selected=true]{background:var(--brand);color:#fff}
+/* connexion */
+.login{max-width:460px;margin:0 auto}
+.seg{display:flex;gap:6px;margin-bottom:18px}.seg button{flex:1}
+.seg button[aria-pressed=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
+/* saisie */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(20px,3vw,48px)}
+.types{display:flex;flex-wrap:wrap;gap:6px;border:0;padding:0;margin:0 0 14px}
+.types legend{font-size:14px;color:var(--mut);margin-bottom:6px;padding:0}
+.types input{position:absolute;opacity:0;width:1px;height:1px}
+.types span{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:2px solid var(--c);color:var(--c);border-radius:999px;cursor:pointer;font-weight:600;font-size:15px}
+.types input:checked+span{background:var(--c);color:#fff}
+.types input:focus-visible+span{outline:3px solid var(--red)}
+.caisse{background:var(--cash);color:#fff;border-radius:6px;padding:clamp(18px,2.5vw,32px)}
+.caisse label,.caisse .kv{color:#d4f5e2}.caisse .kv b{color:#fff}
+.big{font-size:clamp(44px,7vw,84px);line-height:1;font-weight:800;font-stretch:125%;letter-spacing:-.02em;white-space:nowrap}
+.cur{font-size:.32em;font-weight:700;letter-spacing:0;margin-left:.2em}
+.kv{display:flex;flex-wrap:wrap;gap:6px 22px;margin:12px 0 22px;font-size:15px}.kv b{white-space:nowrap}
+.fl{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.25)}
+.bar{height:12px;background:rgba(255,255,255,.22);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--c,#fff);border-radius:6px}
+.low .amt{color:#ffe08a}.tag{font-size:13px;font-weight:700;background:#fff;color:var(--red);padding:1px 6px;border-radius:4px}
+.amt,.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--c);margin-right:8px;vertical-align:-1px}
+.pill{display:inline-block;background:var(--c);color:#fff;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+.pend{font-size:12px;color:#c98a00;font-weight:700}
+.plus{color:var(--cash);font-weight:700}.minus{color:var(--red);font-weight:700}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:14px;color:var(--brand);font-weight:600;border-bottom:2px solid var(--brand)}
+thead tr{background:var(--brand2)}
+td.num,th.num{text-align:right}tfoot td{font-weight:800;border-top:2px solid var(--ink)}
+.empty{color:var(--mut);padding:20px 0}
+.sec-bilan{background:var(--warm)}.sec-bilan h2{color:#b35c00}
+.sec-blue{background:var(--brand2)}
+.bil{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin-bottom:24px}
+.bil div{padding:14px 16px;border-radius:6px;background:var(--t);color:#fff}
+.bil small{display:block;color:rgba(255,255,255,.85);font-size:14px}
+.bil strong{font-size:clamp(22px,3vw,32px);font-weight:800;font-stretch:112%;white-space:nowrap}
+.badge{display:inline-block;background:var(--red);color:#fff;font-weight:700;padding:4px 10px;font-size:14px;border-radius:4px;vertical-align:middle}
+.neg{color:var(--red)}
+/* tableau propriétaire */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:14px}
+.card{border:2px solid var(--line);border-radius:8px;padding:16px;background:var(--bg);display:flex;flex-direction:column;gap:6px}
+.card h3{margin:0;font-size:19px}
+.card .c{font-size:30px;font-weight:800;font-stretch:115%;color:var(--cash);white-space:nowrap}
+.st{font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block}
+.st.o{background:#dff5e8;color:#0b6b3a}.st.c{background:#ffe1e6;color:#b0001f}
+.totbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.totbar div{background:var(--brand);color:#fff;border-radius:6px;padding:12px 16px;flex:1 1 160px}
+.totbar small{display:block;color:#dfe6ff}.totbar strong{font-size:24px;font-weight:800;white-space:nowrap}
+pre,.scroll{overflow-x:auto}
+@media(max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}.fl{grid-template-columns:minmax(0,1fr) auto}.fl .bar{grid-column:1/-1;grid-row:2}}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script src="supabase.js"></script>
+<script src="xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- ============ CONNEXION ============ -->
+<section id="vLogin" hidden>
+  <header class="band"><div class="wrap"><div><h1>Agence mobile Pro</h1><p class="sub">Caisse Mobile Money partagée entre agents et propriétaire</p></div></div></header>
+  <div class="band"><div class="login">
+    <div class="seg"><button id="segIn" aria-pressed="true">Se connecter</button><button id="segUp" aria-pressed="false">Créer un compte propriétaire</button></div>
+    <form id="fIn" autocomplete="on">
+      <div class="f"><label for="inId">Identifiant agent ou e-mail du propriétaire</label><input id="inId" autocomplete="username" required></div>
+      <div class="f"><label for="inPw">Code d'accès / mot de passe</label><input id="inPw" type="password" autocomplete="current-password" required></div>
+      <button class="pri" style="width:100%">Se connecter</button>
+    </form>
+    <form id="fUp" hidden>
+      <div class="f"><label for="upNom">Votre nom</label><input id="upNom" required></div>
+      <div class="f"><label for="upAg">Nom de votre premier point</label><input id="upAg" placeholder="Ex. : Agence Cocody Centre" required></div>
+      <div class="f"><label for="upMail">Adresse e-mail</label><input id="upMail" type="email" autocomplete="email" required></div>
+      <div class="f"><label for="upPw">Mot de passe (8 caractères minimum)</label><input id="upPw" type="password" minlength="8" autocomplete="new-password" required></div>
+      <button class="pri" style="width:100%">Créer mon compte</button>
+    </form>
+    <p class="msg" id="mLogin" role="status"></p>
+    <p class="mut">Les agents reçoivent leur identifiant et leur code d'accès du propriétaire.</p>
+  </div></div>
+</section>
+
+<!-- ============ APPLI ============ -->
+<section id="vApp" hidden>
+<header class="band"><div class="wrap">
+  <div>
+    <h1 id="nomAg">…</h1>
+    <p class="sub" id="dateTxt"></p>
+    <div class="who"><span id="whoTxt"></span><span class="sync" id="sync"><i></i><span id="syncTxt">…</span></span><button class="sm" id="logout">Déconnexion</button></div>
+  </div>
+  <div class="dnav">
+    <select id="agSel" aria-label="Point de vente" style="width:auto;max-width:240px"></select>
+    <button class="icon" id="prev" aria-label="Jour précédent">‹</button>
+    <input type="date" id="date" aria-label="Date" style="width:auto">
+    <button class="icon" id="next" aria-label="Jour suivant">›</button>
+    <button id="today">Aujourd'hui</button>
+  </div>
+</div></header>
+<nav class="tabs" role="tablist">
+  <button role="tab" data-v="caisse" aria-selected="true">Caisse</button>
+  <button role="tab" data-v="patron" aria-selected="false" class="own">Tableau du propriétaire</button>
+  <button role="tab" data-v="reglages" aria-selected="false" class="own">Agents et réglages</button>
+</nav>
+
+<!-- Caisse -->
+<div id="tCaisse">
+<section class="band"><div class="wrap grid">
+  <form id="form" autocomplete="off">
+    <h2>Nouvelle opération</h2>
+    <fieldset class="types" id="types"><legend>Type d'opération</legend></fieldset>
+    <div class="row2">
+      <div class="f"><label for="op">Opérateur</label><select id="op"></select></div>
+      <div class="f"><label for="m">Montant (FCFA)</label><input id="m" type="number" min="1" step="1" inputmode="numeric" required></div>
+    </div>
+    <div class="row2">
+      <div class="f"><label for="com">Commission (FCFA)</label><input id="com" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+      <div class="f"><label for="tel">Téléphone client</label><input id="tel" type="tel" inputmode="tel" placeholder="07 00 00 00 00"></div>
+    </div>
+    <div class="f"><label for="note">Note</label><input id="note" placeholder="Référence, motif…"></div>
+    <button class="pri" id="add" type="submit">Enregistrer l'opération</button>
+    <p class="msg" id="msg" role="status"></p>
+  </form>
+  <aside class="caisse" aria-label="Caisse en direct">
+    <label>Espèces en caisse (théorique)</label>
+    <div class="big" id="cash">0<span class="cur">FCFA</span></div>
+    <div class="kv" id="cashKv"></div>
+    <h3>Float électronique par opérateur</h3>
+    <div id="floats"></div>
+    <div class="kv" id="comKv" style="margin-bottom:0"></div>
+  </aside>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap">
+  <h2 style="color:var(--ink)">Journal du jour</h2>
+  <table class="stack"><thead><tr><th>Heure</th><th>Type</th><th>Opérateur</th><th class="num">Montant</th><th class="num">Commission</th><th>Client</th><th>Agent</th><th>Note</th><th></th></tr></thead><tbody id="journal"></tbody></table>
+  <p class="empty" id="empty">Aucune opération pour cette journée.</p>
+</div></section>
+
+<section class="band sec-bilan"><div class="wrap">
+  <h2>Bilan de fin de journée <span class="badge" id="closBadge" hidden>Journée clôturée</span></h2>
+  <h3>Ouverture de caisse</h3>
+  <div class="cols3" id="ouv"></div>
+  <div class="actions"><button id="reprise">Reprendre la clôture de la veille</button></div>
+  <div class="bil" id="bil"></div>
+  <h3>Par opérateur</h3><div class="scroll"><table id="tPer"></table></div>
+  <h3 style="margin-top:22px">Par agent</h3><div class="scroll"><table id="tAg"></table></div>
+  <h3 style="margin-top:24px">Comptage et clôture</h3>
+  <div class="cols3"><div class="f"><label for="compte">Espèces comptées en caisse (FCFA)</label><input id="compte" type="number" min="0" step="1" inputmode="numeric"></div></div>
+  <div class="actions">
+    <button class="red" id="clore">Clôturer la journée</button>
+    <button id="rouvrir" hidden>Rouvrir la journée</button>
+    <button class="blk" id="xlsDay">Exporter le bilan en Excel</button>
+    <button class="wa" id="waDay">Envoyer le bilan par WhatsApp</button>
+  </div>
+  <p class="msg" id="msg2" role="status"></p>
+</div></section>
+</div>
+
+<!-- Tableau du propriétaire -->
+<div id="tPatron" hidden>
+<section class="band"><div class="wrap">
+  <h2>Tous mes points, <span id="pDate"></span></h2>
+  <div class="totbar" id="pTot"></div>
+  <div class="cards" id="pCards"></div>
+  <div class="actions"><button class="blk" id="xlsAll">Exporter tous les points en Excel</button><button class="wa" id="waAll">Envoyer le récapitulatif par WhatsApp</button></div>
+  <p class="msg" id="msgP" role="status"></p>
+</div></section>
+<section class="band sec-blue"><div class="wrap">
+  <h2>Export sur une période (point sélectionné)</h2>
+  <div class="cols3">
+    <div class="f"><label for="from">Du</label><input type="date" id="from"></div>
+    <div class="f"><label for="to">Au</label><input type="date" id="to"></div>
+    <div class="f"><label>&nbsp;</label><button class="blk" id="xlsRange" style="width:100%">Exporter la période</button></div>
+  </div>
+  <p class="msg" id="msgR" role="status"></p>
+</div></section>
+</div>
+
+<!-- Réglages -->
+<div id="tReglages" hidden>
+<section class="band"><div class="wrap">
+  <h2>Agents du point <span id="rNom"></span></h2>
+  <table class="stack"><thead><tr><th>Nom</th><th>Identifiant</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="agList"></tbody></table>
+  <h3 style="margin-top:22px">Ajouter un agent</h3>
+  <form id="fAgent" class="cols3" autocomplete="off">
+    <div class="f"><label for="aNom">Nom de l'agent</label><input id="aNom" required></div>
+    <div class="f"><label for="aId">Identifiant de connexion</label><input id="aId" placeholder="ex. awa.cocody" pattern="[a-z0-9][a-z0-9._\-]{2,31}" required></div>
+    <div class="f"><label for="aPw">Code d'accès (6 caractères min.)</label><input id="aPw" minlength="6" required></div>
+    <div class="f"><label>&nbsp;</label><button class="pri" style="width:100%">Créer l'agent</button></div>
+  </form>
+  <p class="mut">Identifiant : lettres minuscules, chiffres, point ou tiret. Il doit être unique ; ajoutez le nom du point (ex. awa.cocody). Communiquez l'identifiant et le code à l'agent.</p>
+  <p class="msg" id="msgA" role="status"></p>
+</div></section>
+<section class="band sec-bilan"><div class="wrap">
+  <h2>Réglages du point</h2>
+  <div class="cols3">
+    <div class="f"><label for="sNom">Nom du point</label><input id="sNom"></div>
+    <div class="f"><label for="sOps">Opérateurs (un par ligne)</label><textarea id="sOps" style="min-height:120px"></textarea></div>
+    <div class="f"><label for="sWa">Numéro WhatsApp du propriétaire</label><input id="sWa" type="tel" placeholder="225 07 00 00 00 00"><p class="mut">Avec l'indicatif pays (225 pour la Côte d'Ivoire), sans le +.</p></div>
+  </div>
+  <button class="pri" id="sSave">Enregistrer les réglages</button>
+  <h3 style="margin-top:28px">Nouveau point de vente</h3>
+  <form id="fPoint" class="cols3"><div class="f"><label for="nPt">Nom du nouveau point</label><input id="nPt" required></div><div class="f"><label>&nbsp;</label><button class="pri" style="width:100%">Créer le point</button></div></form>
+  <p class="msg" id="msgS" role="status"></p>
+</div></section>
+</div>
+</section>
+
+<script>
+{
+/* ================= CONFIG ================= */
+const SB_URL='https://hpnunfiytwhwbipyihls.supabase.co';
+const SB_KEY='sb_publishable_R-64F9irrhHN0ckbuaUPbA_vJw7MQZB';
+const DOM_AGENT='agents.example.com';
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'am-pro-auth'}});
+
+/* ================= OUTILS ================= */
+const $=s=>document.querySelector(s);
+const nf=new Intl.NumberFormat('fr-FR');const fmt=n=>nf.format(Math.round(+n||0));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>d.toLocaleDateString('sv-SE');
+const shift=(ds,n)=>{const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const longDate=ds=>new Date(ds+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function say(t,err,el='#msg'){const m=$(el);if(!m)return;m.textContent=t;m.className='msg'+(err?' err':'')}
+const errTxt=e=>{const s=(e&&(e.message||e.erreur))||String(e);if(/row-level security|42501/i.test(s))return'Action non autorisée (journée clôturée ou droits insuffisants).';if(/Failed to fetch|NetworkError|network/i.test(s))return'Pas de connexion Internet.';if(/Invalid login/i.test(s))return'Identifiant ou code incorrect.';return s};
+const TYPES={
+  depot:{l:'Dépôt',c:1,f:-1,k:'#0b8a4a'},retrait:{l:'Retrait',c:-1,f:1,k:'#e4572e'},transfert:{l:'Transfert',c:1,f:-1,k:'#1f6feb'},
+  facture:{l:'Paiement facture',c:1,f:-1,k:'#7b3fe4'},credit:{l:'Crédit / forfait',c:1,f:-1,k:'#00918f'},
+  appro:{l:'Achat de float',c:-1,f:1,k:'#c98a00'},depense:{l:'Dépense / versement',c:-1,f:0,k:'#6b7280'}};
+const PAL=['#ff7900','#ffcc00','#2a7fff','#1dc4ff','#ff4fa3','#8bd450','#b48cff','#ff9f43'];
+const opColor=(n,i)=>/orange/i.test(n)?'#ff7900':/mtn/i.test(n)?'#ffcc00':/moov/i.test(n)?'#2a7fff':/wave/i.test(n)?'#1dc4ff':PAL[Math.abs(i)%PAL.length];
+
+/* ================= ÉTAT ================= */
+let me=null;            // {id, nom}
+let membres=[];         // [{agence_id, role, nom, agences:{...}}]
+let cur=null;           // agence courante (objet am_agences)
+let role='agent';
+let date=iso(new Date()),ops=[],jour={},vue='caisse',chan=null;
+let outbox=LS.get('am-outbox',[]);
+const isOwner=()=>role==='proprietaire';
+const cacheKey=()=>`am-cache:${cur?.id}:${date}`;
+
+/* ================= SYNCHRO / FILE D'ATTENTE ================= */
+function setSync(){
+  const n=outbox.length,el=$('#sync');
+  el.className='sync'+(!navigator.onLine?' off':'');
+  $('#syncTxt').textContent=!navigator.onLine?(n?`Hors ligne · ${n} en attente`:'Hors ligne'):(n?`Envoi… ${n} en attente`:'Synchronisé');
+}
+let flushing=false;
+async function flush(){
+  if(flushing||!outbox.length||!navigator.onLine){setSync();return}
+  flushing=true;
+  try{
+    while(outbox.length){
+      const it=outbox[0];let error=null;
+      if(it.k==='ins'){({error}=await sb.from('am_operations').insert(it.row));if(error&&error.code==='23505')error=null}
+      else if(it.k==='del'){({error}=await sb.from('am_operations').delete().eq('id',it.id))}
+      else if(it.k==='jour'){({error}=await sb.from('am_jours').upsert(it.row,{onConflict:'agence_id,jour'}))}
+      if(error){
+        if(/fetch|network/i.test(error.message||'')){break}
+        say('Non enregistré : '+errTxt(error),1);outbox.shift();
+      }else outbox.shift();
+      LS.set('am-outbox',outbox);
+    }
+  }catch(e){/* réseau */}
+  flushing=false;setSync();
+  if(!outbox.length)await load(true);
+}
+function queue(it){outbox.push(it);LS.set('am-outbox',outbox);render();flush()}
+addEventListener('online',flush);addEventListener('offline',setSync);
+setInterval(flush,20000);
+
+/* ================= CHARGEMENT ================= */
+async function loadMembres(){
+  const {data,error}=await sb.from('am_membres').select('agence_id,role,nom,actif,am_agences(id,nom,operateurs,whatsapp,proprietaire)').eq('user_id',me.id).eq('actif',true);
+  if(error)throw error;
+  membres=(data||[]).filter(m=>m.am_agences);LS.set('am-membres:'+me.id,membres);
+}
+async function load(quiet){
+  if(!cur)return;
+  const c=LS.get(cacheKey(),null);if(c&&!quiet){ops=c.ops;jour=c.jour;render()}
+  try{
+    const [a,b]=await Promise.all([
+      sb.from('am_operations').select('*').eq('agence_id',cur.id).eq('jour',date).order('t').limit(2000),
+      sb.from('am_jours').select('*').eq('agence_id',cur.id).eq('jour',date).maybeSingle()]);
+    if(a.error)throw a.error;if(b.error)throw b.error;
+    ops=a.data||[];jour=b.data||{};LS.set(cacheKey(),{ops,jour});
+  }catch(e){if(!c){ops=[];jour={}}}
+  render();
+}
+function subscribe(){
+  if(chan){sb.removeChannel(chan);chan=null}
+  if(!cur)return;
+  let t=null;const again=()=>{clearTimeout(t);t=setTimeout(()=>{load(true);if(vue==='patron')loadPatron()},400)};
+  chan=sb.channel('am-'+cur.id)
+    .on('postgres_changes',{event:'*',schema:'public',table:'am_operations',filter:'agence_id=eq.'+cur.id},again)
+    .on('postgres_changes',{event:'*',schema:'public',table:'am_jours',filter:'agence_id=eq.'+cur.id},again)
+    .subscribe();
+}
+
+/* ================= CALCULS ================= */
+function viewOps(){
+  const dels=new Set(outbox.filter(x=>x.k==='del').map(x=>x.id));
+  const pend=outbox.filter(x=>x.k==='ins'&&x.row.agence_id===cur?.id&&x.row.jour===date).map(x=>({...x.row,_p:1}));
+  const ids=new Set(ops.map(o=>o.id));
+  return [...ops.filter(o=>!dels.has(o.id)),...pend.filter(o=>!ids.has(o.id))];
+}
+function viewJour(){
+  const p=outbox.filter(x=>x.k==='jour'&&x.row.agence_id===cur?.id&&x.row.jour===date).pop();
+  return p?{...jour,...p.row}:jour;
+}
+function calc(list,j,opsList){
+  const ouv=j.ouv||{cash:0,f:{}};const per={},ag={};
+  const P=o=>per[o]||(per[o]={n:0,in:0,out:0,com:0,ouv:+(ouv.f?.[o]||0),fl:0});
+  (opsList||cur?.operateurs||[]).forEach(P);
+  let cin=0,cout=0,com=0;
+  for(const o of list){
+    const t=TYPES[o.type];if(!t)continue;const m=+o.m||0,c=+o.com||0;
+    t.c>0?cin+=m:cout+=m;com+=c;
+    if(o.op&&t.f){const p=P(o.op);p.n++;p.fl+=t.f*m;t.c>0?p.in+=m:p.out+=m;p.com+=c}
+    const k=o.agent_nom||'—',a=ag[k]||(ag[k]={n:0,in:0,out:0,com:0});a.n++;t.c>0?a.in+=m:a.out+=m;a.com+=c;
+  }
+  Object.values(per).forEach(p=>p.fin=p.ouv+p.fl);
+  const cash=(+ouv.cash||0)+cin-cout,has=j.compte!==undefined&&j.compte!==null&&j.compte!=='';
+  return{ouv,cin,cout,com,cash,per,ag,n:list.length,compte:has?+j.compte:null,ecart:has?+j.compte-cash:null};
+}
+
+/* ================= AFFICHAGE ================= */
+function renderHeader(){
+  $('#nomAg').textContent=cur?.nom||'Aucun point';
+  $('#dateTxt').textContent='Journée du '+longDate(date);$('#date').value=date;
+  $('#whoTxt').textContent=(me?.nom||'')+(isOwner()?' · propriétaire':' · agent');
+  $('#agSel').innerHTML=membres.map(m=>`<option value="${esc(m.agence_id)}"${m.agence_id===cur?.id?' selected':''}>${esc(m.am_agences.nom)}</option>`).join('');
+  $('#agSel').hidden=membres.length<2;
+  document.querySelectorAll('.own').forEach(b=>b.hidden=!isOwner());
+  setSync();
+}
+function render(){
+  renderHeader();if(!cur)return;
+  const list=viewOps(),j=viewJour(),r=calc(list,j),clos=!!j.clos;
+  $('#op').innerHTML=(cur.operateurs||[]).map(o=>`<option>${esc(o)}</option>`).join('')||'<option></option>';
+  $('#cash').innerHTML=`${fmt(r.cash)}<span class="cur">FCFA</span>`;
+  $('#cashKv').innerHTML=`<span>Ouverture <b>${fmt(r.ouv.cash)}</b></span><span>Entrées <b>+${fmt(r.cin)}</b></span><span>Sorties <b>−${fmt(r.cout)}</b></span><span>Opérations <b>${r.n}</b></span>`;
+  const L=Object.entries(r.per),max=Math.max(1,...L.map(([,p])=>Math.max(p.fin,p.ouv)));
+  $('#floats').innerHTML=L.map(([n,p],i)=>{const low=p.fin<0||(p.ouv>0&&p.fin<p.ouv*.2);return `<div class="fl${low?' low':''}" style="--c:${opColor(n,i)}"><span><span class="dot"></span>${esc(n)}${low?' <span class="tag">float bas</span>':''}</span><div class="bar"><i style="width:${Math.max(0,p.fin)/max*100}%"></i></div><span class="amt">${fmt(p.fin)}</span></div>`}).join('');
+  $('#comKv').innerHTML=`<span>Commissions du jour <b>${fmt(r.com)} FCFA</b></span>`;
+  const sorted=[...list].sort((a,b)=>new Date(b.t)-new Date(a.t));
+  $('#journal').innerHTML=sorted.map(o=>{const t=TYPES[o.type]||{};const canDel=!clos&&(isOwner()||o.agent_id===me.id||o._p);
+    return `<tr><td>${esc(new Date(o.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))}${o._p?'<br><span class="pend">en attente</span>':''}</td><td><span class="pill" style="--c:${t.k||'#6b7280'}">${esc(t.l||o.type)}</span></td><td>${t.f?`<span class="dot" style="--c:${opColor(o.op,(cur.operateurs||[]).indexOf(o.op))}"></span>${esc(o.op)}`:'—'}</td><td class="num ${t.c<0?'minus':'plus'}">${t.c<0?'−':'+'}${fmt(o.m)}</td><td class="num">${o.com?fmt(o.com):''}</td><td>${esc(o.tel)}</td><td>${esc(o.agent_nom||me.nom)}</td><td>${esc(o.note)}</td><td>${canDel?`<button class="sm del" data-id="${esc(o.id)}">Supprimer</button>`:''}</td></tr>`}).join('');
+  $('#empty').hidden=list.length>0;
+  const ouvEl=$('#ouv');
+  if(!ouvEl.contains(document.activeElement)){
+    ouvEl.innerHTML=`<div class="f"><label for="o_cash">Espèces à l'ouverture</label><input id="o_cash" data-k="cash" type="number" min="0" inputmode="numeric" value="${+r.ouv.cash||''}"></div>`+
+      (cur.operateurs||[]).map((o,i)=>`<div class="f"><label for="o_${i}">Float ${esc(o)}</label><input id="o_${i}" data-op="${esc(o)}" type="number" min="0" inputmode="numeric" value="${+(r.ouv.f?.[o]||0)||''}"></div>`).join('');
+  }
+  if(document.activeElement?.id!=='compte')$('#compte').value=r.compte??'';
+  const e=r.ecart;
+  $('#bil').innerHTML=[['Espèces théoriques',fmt(r.cash),'#1739b8'],['Espèces comptées',r.compte==null?'à saisir':fmt(r.compte),'#0b6fa8'],
+    ['Écart de caisse',e==null?'—':(e>0?'+':e<0?'−':'')+fmt(Math.abs(e)),e==null?'#6b7280':e<0?'#e4002b':'#0b8a4a'],['Commissions',fmt(r.com),'#7b3fe4'],
+    ['Total entrées',fmt(r.cin),'#0b8a4a'],['Total sorties',fmt(r.cout),'#e4572e']].map(([k,v,t])=>`<div style="--t:${t}"><small>${k}</small><strong>${v}</strong></div>`).join('');
+  const tot=L.reduce((s,[,p])=>({n:s.n+p.n,in:s.in+p.in,out:s.out+p.out,com:s.com+p.com,ouv:s.ouv+p.ouv,fin:s.fin+p.fin}),{n:0,in:0,out:0,com:0,ouv:0,fin:0});
+  $('#tPer').innerHTML=`<thead><tr><th>Opérateur</th><th class="num">Opérations</th><th class="num">Espèces reçues</th><th class="num">Espèces versées</th><th class="num">Commissions</th><th class="num">Float ouverture</th><th class="num">Float fin</th></tr></thead><tbody>`+
+    L.map(([n,p],i)=>`<tr><td><span class="dot" style="--c:${opColor(n,i)}"></span>${esc(n)}</td><td class="num">${p.n}</td><td class="num">${fmt(p.in)}</td><td class="num">${fmt(p.out)}</td><td class="num">${fmt(p.com)}</td><td class="num">${fmt(p.ouv)}</td><td class="num${p.fin<0?' neg':''}">${fmt(p.fin)}</td></tr>`).join('')+
+    `</tbody><tfoot><tr><td>Total</td><td class="num">${tot.n}</td><td class="num">${fmt(tot.in)}</td><td class="num">${fmt(tot.out)}</td><td class="num">${fmt(tot.com)}</td><td class="num">${fmt(tot.ouv)}</td><td class="num">${fmt(tot.fin)}</td></tr></tfoot>`;
+  const al=Object.entries(r.ag);
+  $('#tAg').innerHTML=`<thead><tr><th>Agent</th><th class="num">Opérations</th><th class="num">Espèces reçues</th><th class="num">Espèces versées</th><th class="num">Commissions</th></tr></thead><tbody>`+
+    (al.length?al.map(([n,a])=>`<tr><td>${esc(n)}</td><td class="num">${a.n}</td><td class="num">${fmt(a.in)}</td><td class="num">${fmt(a.out)}</td><td class="num">${fmt(a.com)}</td></tr>`).join(''):`<tr><td colspan="5" class="mut">Aucune opération.</td></tr>`)+'</tbody>';
+  $('#closBadge').hidden=!clos;$('#clore').hidden=clos;$('#rouvrir').hidden=!(clos&&isOwner());
+  $('#add').disabled=clos;$('#reprise').disabled=clos;$('#compte').disabled=clos;
+  ouvEl.querySelectorAll('input').forEach(i=>i.disabled=clos);
+  if(clos)say(isOwner()?'Journée clôturée : rouvrez-la dans le bilan pour corriger.':'Journée clôturée par '+(j.clos_par||'le point')+'. Seul le propriétaire peut la rouvrir.');
+}
+function renderTypes(){
+  $('#types').innerHTML='<legend>Type d\'opération</legend>'+Object.entries(TYPES).map(([k,t],i)=>`<label style="margin:0;color:inherit;font-size:inherit;--c:${t.k}"><input type="radio" name="type" value="${k}"${i?'':' checked'}><span>${t.l}</span></label>`).join('');
+}
+
+/* ================= TABLEAU DU PROPRIÉTAIRE ================= */
+let patron=null;
+async function loadPatron(){
+  const mine=membres.filter(m=>m.role==='proprietaire').map(m=>m.am_agences);
+  $('#pDate').textContent=longDate(date);
+  if(!mine.length){$('#pCards').innerHTML='';return}
+  const ids=mine.map(a=>a.id);
+  try{
+    const [a,b]=await Promise.all([sb.from('am_operations').select('agence_id,type,op,m,com,agent_nom').in('agence_id',ids).eq('jour',date).limit(10000),
+      sb.from('am_jours').select('*').in('agence_id',ids).eq('jour',date)]);
+    if(a.error)throw a.error;if(b.error)throw b.error;
+    patron={pts:mine.map(ag=>{const j=(b.data||[]).find(x=>x.agence_id===ag.id)||{};const l=(a.data||[]).filter(o=>o.agence_id===ag.id);return{ag,j,l,r:calc(l,j,ag.operateurs)}})};
+    say('',0,'#msgP');
+  }catch(e){say('Chargement impossible : '+errTxt(e),1,'#msgP');return}
+  const T=patron.pts.reduce((s,p)=>({cash:s.cash+p.r.cash,com:s.com+p.r.com,n:s.n+p.r.n,clos:s.clos+(p.j.clos?1:0),ec:s.ec+(p.r.ecart??0)}),{cash:0,com:0,n:0,clos:0,ec:0});
+  $('#pTot').innerHTML=[['Espèces théoriques (tous points)',fmt(T.cash)+' FCFA'],['Commissions du jour',fmt(T.com)+' FCFA'],['Opérations',T.n],['Points clôturés',`${T.clos} / ${patron.pts.length}`],['Écart total',(T.ec>0?'+':T.ec<0?'−':'')+fmt(Math.abs(T.ec))]].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  $('#pCards').innerHTML=patron.pts.map(p=>{const e=p.r.ecart;return `<div class="card"><h3>${esc(p.ag.nom)}</h3>
+    <span><span class="st ${p.j.clos?'c':'o'}">${p.j.clos?'Clôturée':'Ouverte'}</span></span>
+    <span class="mut">Espèces théoriques</span><span class="c">${fmt(p.r.cash)} <small style="font-size:14px">FCFA</small></span>
+    <span>Commissions <b>${fmt(p.r.com)}</b> · ${p.r.n} opération${p.r.n>1?'s':''}</span>
+    <span>Écart : <b class="${e<0?'neg':''}">${e==null?'non compté':(e>0?'+':e<0?'−':'')+fmt(Math.abs(e))}</b></span>
+    <button class="pri sm open" data-id="${esc(p.ag.id)}">Ouvrir la caisse</button></div>`}).join('');
+}
+
+/* ================= RÉGLAGES / AGENTS ================= */
+async function loadAgents(){
+  $('#rNom').textContent=cur?.nom||'';
+  $('#sNom').value=cur?.nom||'';$('#sOps').value=(cur?.operateurs||[]).join('\n');$('#sWa').value=cur?.whatsapp||'';
+  const {data,error}=await sb.from('am_membres').select('user_id,nom,identifiant,role,actif').eq('agence_id',cur.id).order('created_at');
+  if(error){say(errTxt(error),1,'#msgA');return}
+  $('#agList').innerHTML=(data||[]).map(a=>a.role==='proprietaire'?`<tr><td>${esc(a.nom)}</td><td>—</td><td>Propriétaire</td><td></td></tr>`:
+    `<tr><td>${esc(a.nom)}</td><td>${esc(a.identifiant)}</td><td>${a.actif?'<span class="st o">Actif</span>':'<span class="st c">Désactivé</span>'}</td>
+     <td><div class="actions" style="margin:0"><input class="pw" data-u="${esc(a.user_id)}" placeholder="Nouveau code" style="max-width:150px;min-height:36px"><button class="sm setpw" data-u="${esc(a.user_id)}">Changer le code</button>
+     <button class="sm ${a.actif?'red':''} act" data-u="${esc(a.user_id)}" data-a="${a.actif?'0':'1'}">${a.actif?'Désactiver':'Réactiver'}</button></div></td></tr>`).join('');
+}
+async function callComptes(body){
+  const {data:{session}}=await sb.auth.getSession();
+  const r=await fetch(SB_URL+'/functions/v1/am-comptes',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+(session?.access_token||SB_KEY)},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({erreur:'Réponse illisible'}));
+  if(!r.ok||j.erreur)throw new Error(j.erreur||('Erreur '+r.status));return j;
+}
+
+/* ================= EXCEL & WHATSAPP ================= */
+function sheet(aoa,w){const ws=XLSX.utils.aoa_to_sheet(aoa);for(const k in ws)if(k[0]!=='!'&&typeof ws[k].v==='number')ws[k].z='#,##0';ws['!cols']=w.map(x=>({wch:x}));return ws}
+const opRows=list=>[['Date','Heure','Type','Opérateur','Montant','Sens caisse','Commission','Client','Agent','Note'],...[...list].sort((a,b)=>new Date(a.t)-new Date(b.t)).map(o=>{const t=TYPES[o.type]||{};return[o.jour,new Date(o.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),t.l||o.type,t.f?o.op:'',+o.m||0,t.c>0?'Entrée':'Sortie',+o.com||0,o.tel||'',o.agent_nom||'',o.note||'']})];
+const perRows=r=>[['Opérateur','Opérations','Espèces reçues','Espèces versées','Commissions','Float ouverture','Float fin'],...Object.entries(r.per).map(([n,p])=>[n,p.n,p.in,p.out,p.com,p.ouv,p.fin])];
+const agRows=r=>[['Agent','Opérations','Espèces reçues','Espèces versées','Commissions'],...Object.entries(r.ag).map(([n,a])=>[n,a.n,a.in,a.out,a.com])];
+function saveWb(wb,name,el){
+  const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  const url=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  say('Fichier enregistré dans Téléchargements : '+name,0,el);
+}
+const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+function bilanText(ag,r,j){
+  const e=r.ecart;
+  return `*Bilan ${ag.nom}* — ${longDate(date)}\n`+
+   `Statut : ${j.clos?'clôturée':'ouverte'}\nOpérations : ${r.n}\n`+
+   `Espèces : ouverture ${fmt(r.ouv.cash)} / entrées ${fmt(r.cin)} / sorties ${fmt(r.cout)}\n`+
+   `Espèces théoriques : ${fmt(r.cash)} FCFA\nEspèces comptées : ${r.compte==null?'non saisi':fmt(r.compte)+' FCFA'}\n`+
+   `Écart : ${e==null?'—':(e>0?'+':e<0?'-':'')+fmt(Math.abs(e))+' FCFA'}\nCommissions : ${fmt(r.com)} FCFA\n`+
+   `Float fin : ${Object.entries(r.per).map(([n,p])=>n+' '+fmt(p.fin)).join(' · ')}`;
+}
+function openWa(num,text,el){
+  const n=String(num||'').replace(/\D/g,'');
+  const url=(n?`https://wa.me/${n}`:'https://wa.me/')+'?text='+encodeURIComponent(text);
+  const w=window.open(url,'_blank');if(!w)location.href=url;
+  say(n?'WhatsApp ouvert avec le bilan.':'WhatsApp ouvert : choisissez le destinataire. (Ajoutez le numéro du propriétaire dans les réglages.)',0,el);
+}
+
+/* ================= NAVIGATION ================= */
+function show(v){
+  vue=v;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
+  $('#tCaisse').hidden=v!=='caisse';$('#tPatron').hidden=v!=='patron';$('#tReglages').hidden=v!=='reglages';
+  if(v==='patron')loadPatron();if(v==='reglages')loadAgents();
+}
+function choose(id){
+  const m=membres.find(x=>x.agence_id===id)||membres[0];
+  cur=m?m.am_agences:null;role=m?m.role:'agent';LS.set('am-cur',cur?.id);
+  ops=[];jour={};subscribe();load();
+  if(!isOwner()&&vue!=='caisse')show('caisse');else if(vue==='reglages')loadAgents();
+}
+const go=d=>{if(!d)return;date=d;say('');say('',0,'#msg2');load();if(vue==='patron')loadPatron()};
+
+async function startApp(user){
+  me={id:user.id,nom:user.user_metadata?.nom||user.email};
+  $('#vLogin').hidden=true;$('#vApp').hidden=false;
+  try{await loadMembres()}catch(e){membres=LS.get('am-membres:'+me.id,[]);if(!membres.length)say('Connexion au serveur impossible : '+errTxt(e),1)}
+  const mm=membres.find(x=>x.role==='proprietaire')||membres[0];if(mm)me.nom=mm.nom||me.nom;
+  if(!membres.length){$('#nomAg').textContent='Aucun point';say('Ce compte n\'est rattaché à aucun point actif. Contactez le propriétaire.',1);renderHeader();return}
+  choose(LS.get('am-cur',null)||membres[0].agence_id);show('caisse');flush();
+}
+function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#vApp').hidden=true;$('#vLogin').hidden=false}
+
+/* ================= ÉVÉNEMENTS ================= */
+$('#segIn').onclick=()=>{$('#fIn').hidden=false;$('#fUp').hidden=true;$('#segIn').setAttribute('aria-pressed',true);$('#segUp').setAttribute('aria-pressed',false);say('',0,'#mLogin')};
+$('#segUp').onclick=()=>{$('#fIn').hidden=true;$('#fUp').hidden=false;$('#segIn').setAttribute('aria-pressed',false);$('#segUp').setAttribute('aria-pressed',true);say('',0,'#mLogin')};
+$('#fIn').addEventListener('submit',async e=>{e.preventDefault();
+  let id=$('#inId').value.trim();const email=id.includes('@')?id.toLowerCase():`${id.toLowerCase()}@${DOM_AGENT}`;
+  say('Connexion…',0,'#mLogin');
+  const {data,error}=await sb.auth.signInWithPassword({email,password:$('#inPw').value});
+  if(error)return say(errTxt(error),1,'#mLogin');
+  $('#inPw').value='';say('',0,'#mLogin');startApp(data.user)});
+$('#fUp').addEventListener('submit',async e=>{e.preventDefault();
+  const email=$('#upMail').value.trim().toLowerCase(),pw=$('#upPw').value;
+  say('Création du compte…',0,'#mLogin');
+  try{await callComptes({action:'inscription',nom:$('#upNom').value,agence:$('#upAg').value,email,motdepasse:pw})}catch(err){return say(errTxt(err),1,'#mLogin')}
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
+  if(error)return say(errTxt(error),1,'#mLogin');startApp(data.user)});
+$('#logout').onclick=async()=>{if(outbox.length&&!navigator.onLine)return say('Des opérations attendent la connexion : reconnectez-vous à Internet avant de vous déconnecter.',1);await sb.auth.signOut();LS.set('am-cur',null);showLogin()};
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+$('#agSel').onchange=e=>choose(e.target.value);
+$('#date').onchange=e=>go(e.target.value);$('#prev').onclick=()=>go(shift(date,-1));$('#next').onclick=()=>go(shift(date,1));$('#today').onclick=()=>go(iso(new Date()));
+
+$('#form').addEventListener('submit',e=>{e.preventDefault();if(viewJour().clos)return;
+  const type=document.querySelector('input[name=type]:checked').value,t=TYPES[type],m=Math.round(+$('#m').value);
+  if(!(m>0))return say('Saisissez un montant supérieur à 0.',1);
+  const r=calc(viewOps(),viewJour());let warn='';const op=t.f?$('#op').value:'';
+  if(t.c<0&&r.cash<m)warn=' Attention : espèces insuffisantes.';if(t.f<0&&(r.per[op]?.fin??0)<m)warn=' Attention : float '+op+' insuffisant.';
+  queue({k:'ins',row:{id:uuid(),agence_id:cur.id,jour:date,t:new Date().toISOString(),type,op,m,com:Math.round(+$('#com').value)||0,tel:$('#tel').value.trim(),note:$('#note').value.trim(),agent_id:me.id,agent_nom:me.nom}});
+  say(t.l+' de '+fmt(m)+' FCFA enregistré'+(navigator.onLine?'.':' (sera envoyé au retour de la connexion).')+warn,!!warn);
+  ['#m','#com','#tel','#note'].forEach(s=>$(s).value='');$('#m').focus()});
+$('#journal').addEventListener('click',e=>{const b=e.target.closest('.del');if(!b)return;
+  if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmer';b.classList.add('red');return}
+  const id=b.dataset.id,i=outbox.findIndex(x=>x.k==='ins'&&x.row.id===id);
+  if(i>=0){outbox.splice(i,1);LS.set('am-outbox',outbox);render()}else queue({k:'del',id});say('Opération supprimée.')});
+const jourRow=patch=>{const j=viewJour();return{agence_id:cur.id,jour:date,ouv:j.ouv||{cash:0,f:{}},compte:j.compte??null,clos:!!j.clos,fin:j.fin??null,clos_par:j.clos_par??null,clos_at:j.clos_at??null,...patch}};
+$('#ouv').addEventListener('change',e=>{const i=e.target,o=JSON.parse(JSON.stringify(viewJour().ouv||{cash:0,f:{}}));o.f=o.f||{};const v=Math.round(+i.value)||0;if(i.dataset.k)o.cash=v;else o.f[i.dataset.op]=v;queue({k:'jour',row:jourRow({ouv:o})})});
+$('#compte').addEventListener('change',e=>queue({k:'jour',row:jourRow({compte:e.target.value===''?null:Math.round(+e.target.value)})}));
+$('#reprise').onclick=async()=>{const {data,error}=await sb.from('am_jours').select('fin').eq('agence_id',cur.id).eq('jour',shift(date,-1)).maybeSingle();
+  if(error)return say(errTxt(error),1,'#msg2');if(!data?.fin)return say('La veille n\'a pas été clôturée : saisissez l\'ouverture à la main.',1,'#msg2');
+  queue({k:'jour',row:jourRow({ouv:data.fin})});say('Ouverture reprise de la clôture de la veille.',0,'#msg2')};
+$('#clore').onclick=()=>{const b=$('#clore');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmer la clôture';return}
+  b.dataset.c='';b.textContent='Clôturer la journée';
+  const r=calc(viewOps(),viewJour()),f={};Object.entries(r.per).forEach(([n,p])=>f[n]=p.fin);
+  queue({k:'jour',row:jourRow({clos:true,fin:{cash:r.compte??r.cash,f},clos_par:me.nom,clos_at:new Date().toISOString()})});
+  say('Journée clôturée. Envoyez le bilan par WhatsApp ou exportez-le.',0,'#msg2')};
+$('#rouvrir').onclick=()=>{queue({k:'jour',row:jourRow({clos:false})});say('Journée rouverte.',0,'#msg2')};
+$('#xlsDay').onclick=()=>{const r=calc(viewOps(),viewJour()),j=viewJour(),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheet([['Bilan de fin de journée'],['Point',cur.nom],['Date',date],['Statut',j.clos?'Clôturée':'Ouverte'],['Clôturée par',j.clos_par||''],['Édité le',new Date().toLocaleString('fr-FR')],[],
+    ['Caisse espèces','FCFA'],['Ouverture',+r.ouv.cash||0],['Entrées',r.cin],['Sorties',r.cout],['Espèces théoriques',r.cash],['Espèces comptées',r.compte??''],['Écart',r.ecart??''],[],['Nombre d\'opérations',r.n],['Commissions du jour',r.com],[],...perRows(r)],[24,16,16,16,14,16,14]),'Bilan');
+  XLSX.utils.book_append_sheet(wb,sheet(opRows(viewOps()),[11,8,18,16,12,11,12,16,14,24]),'Opérations');
+  XLSX.utils.book_append_sheet(wb,sheet(agRows(r),[18,12,16,16,14]),'Par agent');
+  saveWb(wb,`bilan-${slug(cur.nom)}-${date}.xlsx`,'#msg2')};
+$('#waDay').onclick=()=>openWa(cur.whatsapp,bilanText(cur,calc(viewOps(),viewJour()),viewJour()),'#msg2');
+$('#pCards').addEventListener('click',e=>{const b=e.target.closest('.open');if(!b)return;choose(b.dataset.id);show('caisse')});
+$('#xlsAll').onclick=()=>{if(!patron)return;const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheet([['Point','Statut','Opérations','Ouverture','Entrées','Sorties','Espèces théoriques','Espèces comptées','Écart','Commissions'],...patron.pts.map(p=>[p.ag.nom,p.j.clos?'Clôturée':'Ouverte',p.r.n,+p.r.ouv.cash||0,p.r.cin,p.r.cout,p.r.cash,p.r.compte??'',p.r.ecart??'',p.r.com])],[24,11,11,13,13,13,16,16,11,13]),'Tous les points');
+  saveWb(wb,`recap-points-${date}.xlsx`,'#msgP')};
+$('#waAll').onclick=()=>{if(!patron)return;const t=`*Récapitulatif du ${longDate(date)}*\n`+patron.pts.map(p=>`\n*${p.ag.nom}* (${p.j.clos?'clôturée':'ouverte'})\nEspèces : ${fmt(p.r.cash)} · Commissions : ${fmt(p.r.com)} · Écart : ${p.r.ecart==null?'—':fmt(p.r.ecart)}`).join('\n');openWa(cur?.whatsapp,t,'#msgP')};
+$('#xlsRange').onclick=async()=>{const a=$('#from').value,b=$('#to').value;if(!a||!b||a>b)return say('Choisissez une période valide.',1,'#msgR');
+  let list=[];try{for(let i=0;;i+=1000){const {data,error}=await sb.from('am_operations').select('*').eq('agence_id',cur.id).gte('jour',a).lte('jour',b).order('t').range(i,i+999);if(error)throw error;list=list.concat(data);if(data.length<1000)break}}catch(e){return say(errTxt(e),1,'#msgR')}
+  const days={};for(const o of list)(days[o.jour]=days[o.jour]||[]).push(o);
+  const r=calc(list,{}),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheet([['Date','Opérations','Entrées','Sorties','Commissions'],...Object.keys(days).sort().map(d=>{const x=calc(days[d],{});return[d,x.n,x.cin,x.cout,x.com]})],[12,12,14,14,14]),'Synthèse par jour');
+  XLSX.utils.book_append_sheet(wb,sheet(perRows(r).map(x=>x.slice(0,5)),[18,12,16,16,14]),'Par opérateur');
+  XLSX.utils.book_append_sheet(wb,sheet(agRows(r),[18,12,16,16,14]),'Par agent');
+  XLSX.utils.book_append_sheet(wb,sheet(opRows(list),[11,8,18,16,12,11,12,16,14,24]),'Opérations');
+  saveWb(wb,`operations-${slug(cur.nom)}-${a}-au-${b}.xlsx`,'#msgR')};
+$('#fAgent').addEventListener('submit',async e=>{e.preventDefault();say('Création…',0,'#msgA');
+  try{await callComptes({action:'creer_agent',agence_id:cur.id,nom:$('#aNom').value,identifiant:$('#aId').value.trim().toLowerCase(),motdepasse:$('#aPw').value});
+    say(`Agent créé. Identifiant : ${$('#aId').value.trim().toLowerCase()} — code : ${$('#aPw').value}`,0,'#msgA');$('#fAgent').reset();loadAgents()}catch(err){say(errTxt(err),1,'#msgA')}});
+$('#agList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const u=b.dataset.u;
+  try{if(b.classList.contains('setpw')){const v=document.querySelector(`.pw[data-u="${CSS.escape(u)}"]`).value;await callComptes({action:'mot_de_passe',agence_id:cur.id,user_id:u,motdepasse:v});say('Code changé. Nouveau code : '+v,0,'#msgA')}
+    else if(b.classList.contains('act')){await callComptes({action:'activer',agence_id:cur.id,user_id:u,actif:b.dataset.a==='1'});say(b.dataset.a==='1'?'Agent réactivé.':'Agent désactivé : il ne peut plus se connecter.',0,'#msgA')}
+    loadAgents()}catch(err){say(errTxt(err),1,'#msgA')}});
+$('#sSave').onclick=async()=>{const ops=[...new Set($('#sOps').value.split('\n').map(x=>x.trim()).filter(Boolean))];
+  if(!ops.length)return say('Indiquez au moins un opérateur.',1,'#msgS');
+  const patch={nom:$('#sNom').value.trim()||cur.nom,operateurs:ops,whatsapp:$('#sWa').value.replace(/\D/g,'')||null};
+  const {error}=await sb.from('am_agences').update(patch).eq('id',cur.id);if(error)return say(errTxt(error),1,'#msgS');
+  Object.assign(cur,patch);LS.set('am-membres:'+me.id,membres);render();say('Réglages enregistrés.',0,'#msgS')};
+$('#fPoint').addEventListener('submit',async e=>{e.preventDefault();
+  const {data,error}=await sb.from('am_agences').insert({nom:$('#nPt').value.trim(),proprietaire:me.id}).select('id').single();
+  if(error)return say(errTxt(error),1,'#msgS');$('#nPt').value='';await loadMembres();choose(data.id);say('Point créé. Ajoutez-lui des agents ci-dessus.',0,'#msgS')});
+
+/* ================= DÉMARRAGE ================= */
+renderTypes();
+$('#from').value=date.slice(0,8)+'01';$('#to').value=date;
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT')showLogin()});
+let hasTok=false;try{hasTok=!!localStorage.getItem('am-pro-auth')}catch(e){}
+if(!hasTok)showLogin();
+setTimeout(()=>{if($('#vLogin').hidden&&$('#vApp').hidden)showLogin()},6000);
+sb.auth.getSession().then(({data})=>{if(data.session)startApp(data.session.user);else showLogin()}).catch(()=>showLogin());
+}
+</script>
+</body>
+</html>

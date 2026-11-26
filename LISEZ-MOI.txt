@@ -1,0 +1,38 @@
+AGENCE MOBILE PRO - ce qu'il faut savoir
+=========================================
+
+Version en ligne de l'appli : les données sont enregistrées sur un serveur
+(Supabase, projet « agence-mobile-pro ») et partagées entre le propriétaire et ses agents.
+
+NOUVEAUTÉS PAR RAPPORT À LA VERSION SIMPLE
+- Connexion : le propriétaire avec son e-mail, chaque agent avec un identifiant
+  et un code d'accès créés par le propriétaire.
+- Synchronisation en direct : une opération saisie par un agent apparaît tout
+  de suite chez le propriétaire.
+- Saisie sans Internet : les opérations sont gardées « en attente » sur le
+  téléphone et envoyées automatiquement au retour de la connexion.
+- Tableau du propriétaire : tous ses points sur un seul écran (espèces,
+  commissions, écarts, clôtures), export Excel de tous les points.
+- Envoi du bilan par WhatsApp en un clic.
+- Droits : un agent ne peut supprimer que ses propres opérations, ne peut pas
+  rouvrir une journée clôturée et ne voit pas les réglages.
+
+DÉMARRER
+1. Mettre l'appli en ligne (obligatoire pour Android) :
+   https://app.netlify.com/drop -> glisser le dossier « agence-mobile-pro ».
+   Sur PC seulement : double-cliquer sur lancer.bat.
+2. Ouvrir l'appli -> « Créer un compte propriétaire » (nom, nom du point,
+   e-mail, mot de passe).
+3. Onglet « Agents et réglages » :
+   - créer chaque agent (nom, identifiant du type awa.cocody, code d'accès) ;
+   - indiquer le numéro WhatsApp du propriétaire (ex. 2250700000000).
+4. Donner à chaque agent l'adresse de l'appli, son identifiant et son code.
+5. Pour ouvrir un 2e point : « Nouveau point de vente » dans les réglages.
+
+À SAVOIR
+- Offre gratuite Supabase : le projet est mis en pause après 7 jours sans
+  aucune utilisation. Pour une activité commerciale avec des clients payants,
+  passez à l'offre Pro de Supabase (environ 25 $/mois).
+- Un agent désactivé ne peut plus se connecter.
+- Les identifiants d'agents sont uniques pour tout le système :
+  ajoutez le nom du point (awa.cocody, awa.yop...).
