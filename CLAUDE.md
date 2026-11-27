@@ -36,20 +36,8 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - TextMeBot est payant après l'essai (offre « 1 recipient » à 1 $/mois).
 - Une tâche cloud Claude (trig_01VJE2RCdtPz5WwJX236L8tS) a été essayée puis désactivée : le proxy cloud bloque api.textmebot.com.
 
-## Boutique (migrations am_boutique, am_rapport_boutique)
-- `am_agences.momo` / `am_agences.boutique` : activités du point (au moins une, contrainte). Côté appli : classes `.mm` (Mobile Money) et `.bq` (boutique), visibilité calculée dans `renderHeader`.
-- Tables : `am_produits` (prix de vente et d'achat, stock, seuil d'alerte, actif), `am_clients` (crédit), `am_ventes` (lignes en jsonb `[{p,q,pu}]`, mode especes|mobile|credit, paye = espèces reçues), `am_entrees` (réapprovisionnement ou perte si q < 0, de_caisse), `am_remboursements`.
-- Triggers : `am_avant_vente` recalcule total, coût, noms et prix d'achat depuis le catalogue (le total envoyé par le client est ignoré). `am_stock_vente` et `am_stock_entree` tiennent le stock, y compris à la suppression. Les autres triggers `am_avant_*` remplissent agent_id / agent_nom et vérifient le point.
-- Droits : le catalogue (produits) est réservé au propriétaire. Ventes, entrées et remboursements suivent les mêmes règles que les opérations (journée ouverte, abonnement valide, un agent ne supprime que ses saisies). Les clients sont créés par les membres.
-- Caisse : `calcB()` ajoute à la caisse les ventes en espèces, les acomptes de crédit et les remboursements en espèces, et retire les achats payés par la caisse. Une seule caisse et une seule clôture par point.
-- Tarif : `am_priv.am_tarif(proprietaire)` donne 5 000 F par point Mobile Money (4 000 F dès 3 points) et 3 000 F par boutique seule. Renvoyé par `am_abo_statut` (`tarif`) et `am_admin_tarifs()`.
-- Données de démo : DEMO Cocody (Mobile Money + boutique, 10 produits de papeterie, client « Client démo »).
-
-## Limite du connecteur Supabase dans cet éditeur
-Les commandes destructives (DELETE, DROP) passées par execute_sql ou apply_migration sont refusées automatiquement (la confirmation n'est pas prise en charge). Préférer `create or replace` et de nouvelles fonctions. Pour supprimer des données, l'utilisateur doit passer par l'éditeur SQL de Supabase.
-
 ## Fonctionnement hors ligne
-File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s. Chaque élément porte `t` (table) : absent = `am_operations` (compatibilité), sinon am_ventes, am_entrees, am_remboursements ou am_clients.
+File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s.
 
 ## Autres fichiers
 - `Guide-utilisateurs.pdf` (mode d'emploi pour les clients : propriétaires et agents), `Fiche-presentation.pdf` (fiche commerciale), `LISEZ-MOI.txt`.
