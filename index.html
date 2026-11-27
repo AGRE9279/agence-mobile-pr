@@ -214,6 +214,20 @@ body.fourn .cli,body.fourn .dnav,body.fourn #aboBand,body:not(.fourn) .adm,body.
   </div></div>
 </section>
 
+<!-- ============ PREMIÈRE CONNEXION : CHOIX DU MOT DE PASSE ============ -->
+<section id="vPw" hidden>
+  <header class="band"><div class="wrap"><div><h1>Agence mobile Pro</h1><p class="sub">Bienvenue ! Choisissez votre mot de passe</p></div></div></header>
+  <div class="band"><div class="login">
+    <p>Votre compte a été préparé par votre fournisseur avec un <b>mot de passe provisoire</b>. Choisissez maintenant votre propre mot de passe : vous serez <b>le seul à le connaître</b>.</p>
+    <form id="fPw" autocomplete="on">
+      <div class="f"><label for="pw1">Nouveau mot de passe (8 caractères minimum)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required></div>
+      <div class="f"><label for="pw2">Retapez le mot de passe</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required></div>
+      <button class="pri" style="width:100%">Enregistrer mon mot de passe</button>
+    </form>
+    <p class="msg" id="mPw" role="status"></p>
+  </div></div>
+</section>
+
 <!-- ============ APPLI ============ -->
 <section id="vApp" hidden>
 <header class="band"><div class="wrap">
@@ -387,8 +401,23 @@ body.fourn .cli,body.fourn .dnav,body.fourn #aboBand,body:not(.fourn) .adm,body.
   <div id="fMois"></div>
 </div></section>
 
+<section class="band sec-blue a-clients" id="cNouv" hidden><div class="wrap">
+  <h2>Créer un client</h2>
+  <form id="fNouv" class="cols3" autocomplete="off">
+    <div class="f"><label for="nNom">Nom du client</label><input id="nNom" maxlength="80" required placeholder="Ex. : Koffi Yao"></div>
+    <div class="f"><label for="nPoint">Nom de son point</label><input id="nPoint" maxlength="80" required placeholder="Ex. : Agence Cocody Centre"></div>
+    <div class="f"><label for="nMail">Son adresse e-mail</label><input id="nMail" type="email" maxlength="120" required></div>
+    <div class="f"><label for="nTel">Son WhatsApp (facultatif)</label><input id="nTel" type="tel" inputmode="tel" maxlength="20" placeholder="07 00 00 00 00"></div>
+    <div class="f"><label>&nbsp;</label><div class="actions" style="margin:0"><button class="pri" id="nGo">Créer le compte</button><button type="button" id="nAnnul">Annuler</button></div></div>
+  </form>
+  <p class="mut">L'appli crée un <b>mot de passe provisoire</b>. Le client devra choisir son propre mot de passe à sa première connexion : ensuite, vous ne le connaîtrez plus. Son essai gratuit démarre aussitôt.</p>
+  <div id="cNouvRes"></div>
+  <p class="msg" id="msgNouv" role="status"></p>
+</div></section>
+
 <section class="band a-clients"><div class="wrap">
   <h2>Mes clients</h2>
+  <div class="actions" style="margin-top:0"><button class="pri" id="cNouvBtn">➕ Créer un client</button></div>
   <div class="chips" id="fFiltres"></div>
   <input id="admQ" type="search" placeholder="Rechercher : nom, e-mail ou téléphone" aria-label="Rechercher un client" style="max-width:420px;margin-bottom:12px">
   <table class="stack"><thead><tr><th>Client</th><th>Abonnement</th><th>Points et agents</th><th>Dernière activité</th><th class="num">Total payé</th><th></th></tr></thead><tbody id="admList"></tbody></table>
@@ -895,7 +924,8 @@ function choose(id){
 const go=d=>{if(!d)return;date=d;say('');say('',0,'#msg2');load();if(vue==='patron')loadPatron()};
 
 async function startApp(user){
-  me={id:user.id,nom:user.user_metadata?.nom||user.email,email:user.email};
+  if(user.user_metadata?.doit_changer){$('#vLogin').hidden=true;$('#vApp').hidden=true;$('#vPw').hidden=false;$('#pw1').focus();return} // première connexion : mot de passe à choisir
+  $('#vPw').hidden=true;me={id:user.id,nom:user.user_metadata?.nom||user.email,email:user.email};
   $('#vLogin').hidden=true;$('#vApp').hidden=false;
   await Promise.all([checkAdmin(),loadReglages(),(async()=>{try{await loadMembres()}catch(e){membres=LS.get('am-membres:'+me.id,[]);if(!membres.length&&!admin)say('Connexion au serveur impossible : '+errTxt(e),1)}})()]);
   const mm=membres.find(x=>x.role==='proprietaire')||membres[0];if(mm)me.nom=mm.nom||me.nom;
@@ -905,7 +935,7 @@ async function startApp(user){
   if(!membres.length){$('#nomAg').textContent='Aucun point';say('Ce compte n\'est rattaché à aucun point actif. Contactez le propriétaire.',1);renderHeader();return}
   modeFourn(false);show('caisse');flush();
 }
-function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;modeF=false;document.body.classList.remove('fourn');abo=null;fiches=[];paies=[];ficheId=null;document.querySelectorAll('.adm,.admx').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
+function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;modeF=false;document.body.classList.remove('fourn');abo=null;fiches=[];paies=[];ficheId=null;document.querySelectorAll('.adm,.admx').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vPw').hidden=true;$('#vLogin').hidden=false}
 
 /* ================= ÉVÉNEMENTS ================= */
 $('#segIn').onclick=()=>{$('#fIn').hidden=false;$('#fUp').hidden=true;$('#segIn').setAttribute('aria-pressed',true);$('#segUp').setAttribute('aria-pressed',false);say('',0,'#mLogin')};
@@ -999,6 +1029,36 @@ $('#aboBtns').addEventListener('click',e=>{const b=e.target.closest('.paye');if(
   const w=window.open(url,'_blank');if(!w)location.href=url;
   say('WhatsApp ouvert : ajoutez la référence de votre paiement puis envoyez le message.',0,'#msgAbo')});
 
+/* ---------- Première connexion : choix du mot de passe ---------- */
+$('#fPw').addEventListener('submit',async e=>{e.preventDefault();
+  const p1=$('#pw1').value,p2=$('#pw2').value;
+  if(p1.length<8)return say('Le mot de passe doit avoir au moins 8 caractères.',1,'#mPw');
+  if(p1!==p2)return say('Les deux mots de passe ne sont pas identiques.',1,'#mPw');
+  say('Enregistrement…',0,'#mPw');
+  const {data,error}=await sb.auth.updateUser({password:p1,data:{doit_changer:false}});
+  if(error)return say(/same|different/i.test(error.message)?'Choisissez un mot de passe différent du mot de passe provisoire.':errTxt(error),1,'#mPw');
+  $('#fPw').reset();say('',0,'#mPw');startApp(data.user)});
+
+/* ---------- Espace fournisseur : créer un client ---------- */
+$('#cNouvBtn').onclick=()=>{$('#cNouv').hidden=false;$('#cNouvRes').innerHTML='';say('',0,'#msgNouv');$('#cNouv').scrollIntoView({behavior:'smooth'});$('#nNom').focus()};
+$('#nAnnul').onclick=()=>{$('#fNouv').reset();$('#cNouv').hidden=true};
+$('#fNouv').addEventListener('submit',async e=>{e.preventDefault();
+  const nom=$('#nNom').value.trim(),agence=$('#nPoint').value.trim(),email=$('#nMail').value.trim().toLowerCase(),tel=$('#nTel').value.replace(/\D/g,'');
+  $('#nGo').disabled=true;say('Création du compte…',0,'#msgNouv');
+  let r;try{r=await callComptes({action:'admin_creer_client',nom,agence,email,tel})}catch(err){$('#nGo').disabled=false;return say(errTxt(err),1,'#msgNouv')}
+  $('#nGo').disabled=false;$('#fNouv').reset();
+  const lien=location.origin+location.pathname.replace(/index\.html$/,'');
+  const msg=`Bonjour ${nom}, votre compte Agence mobile Pro est prêt.\n\n1. Ouvrez l'appli : ${lien}\n2. Connectez-vous avec :\n   E-mail : ${r.email}\n   Mot de passe provisoire : ${r.motdepasse}\n3. L'appli vous demandera de choisir votre propre mot de passe.\n\n`+
+    (r.fin?`Votre essai gratuit court jusqu'au ${dateFr(r.fin)}. `:'')+`Je reste disponible pour vous aider à créer vos agents.\n${me.nom}`;
+  $('#cNouvRes').innerHTML=`<div class="card" style="margin:12px 0"><h3>Compte créé pour ${esc(nom)}</h3>
+    <span>E-mail : <b>${esc(r.email)}</b></span><span>Mot de passe provisoire : <b style="font-size:22px;letter-spacing:.05em">${esc(r.motdepasse)}</b></span>
+    <span class="mut">Notez-le ou envoyez-le maintenant : il ne sera plus affiché.</span>
+    <div class="actions" style="margin:8px 0 0">${r.whatsapp?`<a class="btn-lien wa" href="${esc(waUrl(r.whatsapp,msg))}" target="_blank" rel="noopener">Envoyer par WhatsApp</a>`:''}
+      <button type="button" class="sm" id="nCopie">Copier le message</button>
+      <a class="btn-lien" href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Votre compte Agence mobile Pro')}&body=${encodeURIComponent(msg)}">E-mail</a></div></div>`;
+  $('#nCopie').onclick=async()=>{try{await navigator.clipboard.writeText(msg);say('Message copié : collez-le dans WhatsApp ou dans un SMS.',0,'#msgNouv')}catch(_){say('Copie impossible : notez le mot de passe affiché.',1,'#msgNouv')}};
+  say('Compte créé. Le client apparaît dans votre liste.',0,'#msgNouv');loadAdmin()});
+
 /* ---------- Espace fournisseur ---------- */
 $('#vDemo').onclick=()=>{menu(false);modeFourn(false)};
 $('#vFourn').onclick=()=>{menu(false);modeFourn(true)};
@@ -1052,7 +1112,7 @@ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
 sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT')showLogin()});
 let hasTok=false;try{hasTok=!!localStorage.getItem('am-pro-auth')}catch(e){}
 if(!hasTok)showLogin();
-setTimeout(()=>{if($('#vLogin').hidden&&$('#vApp').hidden)showLogin()},6000);
+setTimeout(()=>{if($('#vLogin').hidden&&$('#vApp').hidden&&$('#vPw').hidden)showLogin()},6000);
 sb.auth.getSession().then(({data})=>{if(data.session)startApp(data.session.user);else showLogin()}).catch(()=>showLogin());
 }
 </script>

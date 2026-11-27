@@ -35,6 +35,7 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - `am_abonnements.suspendu` : bloque la saisie (`am_abo_ok`). Se règle avec `am_admin_suspendre(p, s)`. Renvoyé par `am_abo_statut`.
 - RPC admin : `am_admin_fiches()` (clients, avec téléphone WhatsApp du point, dernière activité, tarif), `am_admin_paiements()`. Les anciennes `am_admin_clients()` et `am_admin_tarifs()` ne sont plus utilisées par l'appli.
 - Confidentialité : l'espace fournisseur ne lit jamais les opérations ni les montants des caisses des clients, seulement la date de dernière activité.
+- Créer un client : action `admin_creer_client` de la fonction `am-comptes` (version 2, réservée aux comptes de `am_admins`). Elle crée le compte avec un mot de passe provisoire de 10 caractères, `user_metadata.doit_changer = true`, et le premier point (WhatsApp facultatif). À la connexion, `startApp` affiche l'écran `#vPw`, qui oblige à choisir un mot de passe (`sb.auth.updateUser`, puis `doit_changer` passe à false).
 
 ## Rapport admin WhatsApp (migration am_rapport_whatsapp)
 - Tâche pg_cron `am-rapport-matin`, `0 7 * * *` (7 h Abidjan = UTC), qui appelle `am_priv.am_envoyer_rapport()`. Celle-ci envoie par pg_net un GET vers TextMeBot (`api.textmebot.com/send.php`).
