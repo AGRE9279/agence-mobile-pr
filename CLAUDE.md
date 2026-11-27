@@ -36,6 +36,14 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - TextMeBot est payant après l'essai (offre « 1 recipient » à 1 $/mois).
 - Une tâche cloud Claude (trig_01VJE2RCdtPz5WwJX236L8tS) a été essayée puis désactivée : le proxy cloud bloque api.textmebot.com.
 
+## Boutique : projet séparé, mis de côté
+- Le module boutique (ventes, stock, crédits clients) a été retiré de cette appli à la demande de l'utilisateur : Agence mobile Pro reste **Mobile Money seulement**. Le code complet est conservé dans la branche Git `boutique` (commit 3a3fbdb). Il est destiné à devenir une appli séparée.
+- Côté serveur, ce qui a été créé pour la boutique est resté en place et n'est pas utilisé par cette appli : colonnes `am_agences.momo` / `boutique`, tables `am_produits`, `am_clients`, `am_ventes`, `am_entrees`, `am_remboursements`, fonctions `am_priv.am_tarif` et `am_admin_tarifs()`.
+- `am_abo_statut` renvoie aussi `tarif` : tant que tous les points sont Mobile Money, c'est le même calcul (5 000 F, 4 000 F dès 3 points) que celui de l'appli. Le rapport WhatsApp utilise `am_tarif`, ce qui donne le même résultat.
+
+## Limite du connecteur Supabase dans cet éditeur
+Les commandes destructives (DELETE, DROP) passées par execute_sql ou apply_migration sont refusées automatiquement (la confirmation n'est pas prise en charge). Préférer `create or replace` et de nouvelles fonctions. Pour supprimer des données, l'utilisateur doit passer par l'éditeur SQL de Supabase.
+
 ## Fonctionnement hors ligne
 File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s.
 
