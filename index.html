@@ -832,7 +832,12 @@ $('#admList').addEventListener('click',async e=>{const b=e.target.closest('.aGo'
 /* ================= DÉMARRAGE ================= */
 renderTypes();
 $('#from').value=date.slice(0,8)+'01';$('#to').value=date;
-if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
+  // Quand une nouvelle version de l'appli s'installe, on recharge une fois pour l'afficher.
+  const avait=!!navigator.serviceWorker.controller;let recharge=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(avait&&!recharge&&!outbox.length){recharge=true;location.reload()}});
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+}
 sb.auth.onAuthStateChange((ev)=>{if(ev==='SIGNED_OUT')showLogin()});
 let hasTok=false;try{hasTok=!!localStorage.getItem('am-pro-auth')}catch(e){}
 if(!hasTok)showLogin();
