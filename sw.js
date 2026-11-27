@@ -1,6 +1,6 @@
 // Service worker : l'appli s'ouvre même sans Internet.
 // Les appels au serveur (Supabase) ne passent jamais par le cache.
-const CACHE = 'agence-pro-v3';
+const CACHE = 'agence-pro-v4';
 const FILES = ['./', './index.html', './supabase.js', './xlsx.full.min.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

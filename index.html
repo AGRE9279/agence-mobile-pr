@@ -116,6 +116,59 @@ td.num,th.num{text-align:right}tfoot td{font-weight:800;border-top:2px solid var
 .totbar small{display:block;color:#dfe6ff}.totbar strong{font-size:24px;font-weight:800;white-space:nowrap}
 pre,.scroll{overflow-x:auto}
 @media(max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+/* menu latéral (glisse de la gauche vers la droite) */
+.htop{display:flex;align-items:center;gap:12px}
+.burger{width:46px;min-height:46px;padding:0;font-size:24px;line-height:1;flex:none}
+header .sub b{color:#fff}
+.fond{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
+.menu{position:fixed;top:0;bottom:0;left:0;width:min(300px,85vw);background:var(--bg);color:var(--ink);z-index:21;display:flex;flex-direction:column;overflow-y:auto;
+  box-shadow:4px 0 24px rgba(0,0,0,.3);transform:translateX(-100%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+.menu.open{transform:none;visibility:visible;transition:transform .25s ease}
+.mhead{background:var(--brand);color:#fff;padding:18px 52px 18px 16px;border-top:6px solid var(--accent);position:relative}
+.mhead b{display:block;font-size:18px}.mhead span{color:#dfe6ff;font-size:14px}
+.mclose{position:absolute;right:8px;top:14px;background:transparent;border:0;color:#fff;font-size:20px;width:40px;padding:0}
+.mgrp{margin:14px 16px 4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+.menu>button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-radius:0;background:transparent;min-height:50px;padding:0 16px;font-weight:600;flex:none}
+.menu>button span{width:24px;text-align:center}
+.menu>button[aria-current=true]{background:var(--brand2);color:var(--brand);box-shadow:inset 4px 0 0 var(--brand)}
+.menu em{margin-left:auto;font-style:normal;font-size:13px;color:var(--mut)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:10px 0;width:100%}
+@media(prefers-reduced-motion:reduce){.menu,.menu.open{transition:none}}
+/* caisse découpée en 4 parties sur téléphone */
+.mini{display:none}
+.pt0{padding-top:0}
+@media(max-width:860px){
+  #tCaisse:not([data-s=saisie]) .s-saisie,#tCaisse:not([data-s=caisse]) .s-caisse,#tCaisse:not([data-s=journal]) .s-journal,#tCaisse:not([data-s=bilan]) .s-bilan,
+  #tCaisse[data-s=journal] .s-top,#tCaisse[data-s=bilan] .s-top{display:none}
+  .pt0{padding-top:clamp(20px,3.5vw,44px)}
+  .mini{display:block;margin:-6px 0 12px;font-size:15px;color:var(--mut)}.mini b{color:var(--ink)}
+  .band{padding:16px max(4vw,12px)}
+  header #dateTxt{display:none}
+  header h1{font-size:24px}
+  header.band{padding-block:12px;border-top-width:6px}
+  header .wrap{gap:8px}
+  .who{gap:6px;margin-top:4px}
+  .dnav{width:100%;gap:4px}
+  .dnav #agSel{flex-basis:100%;max-width:none!important}
+  .dnav input[type=date]{flex:1;min-height:40px;padding:6px 8px}
+  .dnav .icon{width:40px;min-height:40px}
+  #today{min-height:40px;padding:0 8px;font-size:14px}
+  #ouv,.bil{grid-template-columns:1fr 1fr}
+  .bil div{padding:10px 12px}.bil strong{font-size:22px}
+}
+/* journal compact sur téléphone : 2 lignes par opération */
+@media(max-width:600px){
+  .jr thead{display:none}
+  .jr tr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .jr td{border:0;padding:0}.jr td:empty{display:none}
+  .jr td:nth-child(1){order:1;font-size:13px;color:var(--mut)}
+  .jr td:nth-child(2){order:2}
+  .jr td:nth-child(4){order:3;margin-left:auto;font-size:17px}
+  .jr td:nth-child(9){order:4}
+  .jr tr::after{content:'';order:5;flex-basis:100%}
+  .jr td:nth-child(3),.jr td:nth-child(5),.jr td:nth-child(6),.jr td:nth-child(7),.jr td:nth-child(8){order:6;font-size:13px;color:var(--mut)}
+  .jr td:nth-child(5)::before{content:'Com. '}
+}
 @media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}.fl{grid-template-columns:minmax(0,1fr) auto}.fl .bar{grid-column:1/-1;grid-row:2}}
 @media(prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}}
 </style>
@@ -150,10 +203,13 @@ pre,.scroll{overflow-x:auto}
 <!-- ============ APPLI ============ -->
 <section id="vApp" hidden>
 <header class="band"><div class="wrap">
-  <div>
-    <h1 id="nomAg">…</h1>
-    <p class="sub" id="dateTxt"></p>
-    <div class="who"><span id="whoTxt"></span><span class="sync" id="sync"><i></i><span id="syncTxt">…</span></span><button class="sm" id="logout">Déconnexion</button></div>
+  <div class="htop">
+    <button class="burger" id="menuBtn" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">☰</button>
+    <div>
+      <h1 id="nomAg">…</h1>
+      <p class="sub"><b id="vueTxt">Saisie d'une opération</b> <span id="dateTxt"></span></p>
+      <div class="who"><span id="whoTxt"></span><span class="sync" id="sync"><i></i><span id="syncTxt">…</span></span></div>
+    </div>
   </div>
   <div class="dnav">
     <select id="agSel" aria-label="Point de vente" style="width:auto;max-width:240px"></select>
@@ -164,18 +220,31 @@ pre,.scroll{overflow-x:auto}
   </div>
 </div></header>
 <div class="abo" id="aboBand" role="status" hidden><div class="wrap"><span id="aboTxt"></span><button class="sm" id="aboGo" hidden>Mon abonnement</button></div></div>
-<nav class="tabs" role="tablist">
-  <button role="tab" data-v="caisse" aria-selected="true">Caisse</button>
-  <button role="tab" data-v="patron" aria-selected="false" class="own">Tableau du propriétaire</button>
-  <button role="tab" data-v="reglages" aria-selected="false" class="own">Agents et réglages</button>
-  <button role="tab" data-v="admin" aria-selected="false" class="adm" hidden>Administration</button>
+<!-- Menu latéral -->
+<div class="fond" id="menuFond" hidden></div>
+<nav class="menu" id="menu" aria-label="Menu principal">
+  <div class="mhead"><b id="mNom"></b><span id="mRole"></span><button class="mclose" id="menuClose" aria-label="Fermer le menu">✕</button></div>
+  <p class="mgrp">Caisse du jour</p>
+  <button data-go="caisse:saisie"><span aria-hidden="true">➕</span>Saisie d'une opération</button>
+  <button data-go="caisse:caisse"><span aria-hidden="true">💰</span>Caisse et float</button>
+  <button data-go="caisse:journal"><span aria-hidden="true">📋</span>Journal du jour<em id="nJ"></em></button>
+  <button data-go="caisse:bilan"><span aria-hidden="true">📊</span>Bilan et clôture</button>
+  <p class="mgrp own">Propriétaire</p>
+  <button class="own" data-go="patron"><span aria-hidden="true">🏪</span>Tableau du propriétaire</button>
+  <button class="own" data-go="reglages"><span aria-hidden="true">👥</span>Agents et réglages</button>
+  <button class="own" data-go="abo"><span aria-hidden="true">⭐</span>Mon abonnement</button>
+  <p class="mgrp adm" hidden>Fournisseur de l'appli</p>
+  <button class="adm" data-go="admin" hidden><span aria-hidden="true">🛠️</span>Administration</button>
+  <hr>
+  <button id="logout"><span aria-hidden="true">🚪</span>Déconnexion</button>
 </nav>
 
 <!-- Caisse -->
-<div id="tCaisse">
-<section class="band"><div class="wrap grid">
-  <form id="form" autocomplete="off">
+<div id="tCaisse" data-s="saisie">
+<section class="band s-top"><div class="wrap grid">
+  <form id="form" class="s-saisie" autocomplete="off">
     <h2>Nouvelle opération</h2>
+    <p class="mini" id="miniCash"></p>
     <fieldset class="types" id="types"><legend>Type d'opération</legend></fieldset>
     <div class="row2">
       <div class="f"><label for="op">Opérateur</label><select id="op"></select></div>
@@ -189,7 +258,7 @@ pre,.scroll{overflow-x:auto}
     <button class="pri" id="add" type="submit">Enregistrer l'opération</button>
     <p class="msg" id="msg" role="status"></p>
   </form>
-  <aside class="caisse" aria-label="Caisse en direct">
+  <aside class="caisse s-caisse" aria-label="Caisse en direct">
     <label>Espèces en caisse (théorique)</label>
     <div class="big" id="cash">0<span class="cur">FCFA</span></div>
     <div class="kv" id="cashKv"></div>
@@ -199,13 +268,13 @@ pre,.scroll{overflow-x:auto}
   </aside>
 </div></section>
 
-<section class="band" style="padding-top:0"><div class="wrap">
+<section class="band s-journal pt0"><div class="wrap">
   <h2 style="color:var(--ink)">Journal du jour</h2>
-  <table class="stack"><thead><tr><th>Heure</th><th>Type</th><th>Opérateur</th><th class="num">Montant</th><th class="num">Commission</th><th>Client</th><th>Agent</th><th>Note</th><th></th></tr></thead><tbody id="journal"></tbody></table>
+  <table class="jr"><thead><tr><th>Heure</th><th>Type</th><th>Opérateur</th><th class="num">Montant</th><th class="num">Commission</th><th>Client</th><th>Agent</th><th>Note</th><th></th></tr></thead><tbody id="journal"></tbody></table>
   <p class="empty" id="empty">Aucune opération pour cette journée.</p>
 </div></section>
 
-<section class="band sec-bilan"><div class="wrap">
+<section class="band sec-bilan s-bilan"><div class="wrap">
   <h2>Bilan de fin de journée <span class="badge" id="closBadge" hidden>Journée clôturée</span></h2>
   <h3>Ouverture de caisse</h3>
   <div class="cols3" id="ouv"></div>
@@ -430,6 +499,8 @@ function renderHeader(){
   $('#agSel').innerHTML=membres.map(m=>`<option value="${esc(m.agence_id)}"${m.agence_id===cur?.id?' selected':''}>${esc(m.am_agences.nom)}</option>`).join('');
   $('#agSel').hidden=membres.length<2;
   document.querySelectorAll('.own').forEach(b=>b.hidden=!isOwner());
+  $('#mNom').textContent=me?.nom||'';
+  $('#mRole').textContent=(isOwner()?'Propriétaire':'Agent')+(admin?' · administrateur':'')+(cur?' · '+cur.nom:'');
   setSync();
 }
 function render(){
@@ -441,6 +512,9 @@ function render(){
   const L=Object.entries(r.per),max=Math.max(1,...L.map(([,p])=>Math.max(p.fin,p.ouv)));
   $('#floats').innerHTML=L.map(([n,p],i)=>{const low=p.fin<0||(p.ouv>0&&p.fin<p.ouv*.2);return `<div class="fl${low?' low':''}" style="--c:${opColor(n,i)}"><span><span class="dot"></span>${esc(n)}${low?' <span class="tag">float bas</span>':''}</span><div class="bar"><i style="width:${Math.max(0,p.fin)/max*100}%"></i></div><span class="amt">${fmt(p.fin)}</span></div>`}).join('');
   $('#comKv').innerHTML=`<span>Commissions du jour <b>${fmt(r.com)} FCFA</b></span>`;
+  const bas=L.filter(([,p])=>p.fin<0||(p.ouv>0&&p.fin<p.ouv*.2)).map(([n])=>n);
+  $('#miniCash').innerHTML=`Espèces en caisse : <b>${fmt(r.cash)} F</b> · ${r.n} opération${r.n>1?'s':''}`+(bas.length?` · <b class="neg">float bas : ${esc(bas.join(', '))}</b>`:'');
+  $('#nJ').textContent=list.length||'';
   const sorted=[...list].sort((a,b)=>new Date(b.t)-new Date(a.t));
   $('#journal').innerHTML=sorted.map(o=>{const t=TYPES[o.type]||{};const canDel=!clos&&(o._p||!aboExpire()&&(isOwner()||o.agent_id===me.id));
     return `<tr><td>${esc(new Date(o.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))}${o._p?'<br><span class="pend">en attente</span>':''}</td><td><span class="pill" style="--c:${t.k||'#6b7280'}">${esc(t.l||o.type)}</span></td><td>${t.f?`<span class="dot" style="--c:${opColor(o.op,(cur.operateurs||[]).indexOf(o.op))}"></span>${esc(o.op)}`:'—'}</td><td class="num ${t.c<0?'minus':'plus'}">${t.c<0?'−':'+'}${fmt(o.m)}</td><td class="num">${o.com?fmt(o.com):''}</td><td>${esc(o.tel)}</td><td>${esc(o.agent_nom||me.nom)}</td><td>${esc(o.note)}</td><td>${canDel?`<button class="sm del" data-id="${esc(o.id)}">Supprimer</button>`:''}</td></tr>`}).join('');
@@ -585,6 +659,7 @@ async function loadAboPage(){
 async function checkAdmin(){
   try{const {data}=await sb.rpc('am_suis_admin');admin=data===true}catch(e){admin=false}
   document.querySelectorAll('.adm').forEach(b=>b.hidden=!admin);
+  if(me)$('#mRole').textContent=(isOwner()?'Propriétaire':'Agent')+(admin?' · administrateur':'')+(cur?' · '+cur.nom:'');
 }
 async function loadAdmin(){
   say('Chargement…',0,'#msgAdm');
@@ -614,8 +689,22 @@ function renderAdmin(){
 }
 
 /* ================= NAVIGATION ================= */
+const VUES={'caisse:saisie':'Saisie d\'une opération','caisse:caisse':'Caisse et float','caisse:journal':'Journal du jour','caisse:bilan':'Bilan et clôture',
+  patron:'Tableau du propriétaire',reglages:'Agents et réglages',abo:'Mon abonnement',admin:'Administration'};
+function marquer(k){$('#vueTxt').textContent=VUES[k]||'';document.querySelectorAll('#menu [data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===k))}
+function menu(ouvert){
+  $('#menu').classList.toggle('open',ouvert);$('#menuFond').hidden=!ouvert;$('#menuBtn').setAttribute('aria-expanded',ouvert);
+  if(ouvert)($('#menu [aria-current=true]')||$('#menuClose')).focus();else $('#menuBtn').focus({preventScroll:true});
+}
+function aller(k){
+  const [v,s]=k.split(':');
+  if(v==='abo'){show('reglages');marquer('abo');setTimeout(()=>$('#secAbo').scrollIntoView({behavior:'smooth'}),60);return}
+  if(s)$('#tCaisse').dataset.s=s;
+  show(v);
+  if(s&&matchMedia('(min-width:861px)').matches)document.querySelector('.s-'+s)?.scrollIntoView({behavior:'smooth'});else window.scrollTo(0,0);
+}
 function show(v){
-  vue=v;document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
+  vue=v;marquer(v==='caisse'?'caisse:'+$('#tCaisse').dataset.s:v);
   $('#tCaisse').hidden=v!=='caisse';$('#tPatron').hidden=v!=='patron';$('#tReglages').hidden=v!=='reglages';$('#tAdmin').hidden=v!=='admin';
   if(v==='patron')loadPatron();if(v==='reglages'){loadAgents();loadAboPage()}if(v==='admin')loadAdmin();
 }
@@ -635,7 +724,7 @@ async function startApp(user){
   if(!membres.length){$('#nomAg').textContent='Aucun point';say('Ce compte n\'est rattaché à aucun point actif. Contactez le propriétaire.',1);renderHeader();return}
   choose(LS.get('am-cur',null)||membres[0].agence_id);show('caisse');flush();
 }
-function showLogin(){if(chan){sb.removeChannel(chan);chan=null}admin=false;abo=null;clients=[];document.querySelectorAll('.adm').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
+function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;abo=null;clients=[];document.querySelectorAll('.adm').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
 
 /* ================= ÉVÉNEMENTS ================= */
 $('#segIn').onclick=()=>{$('#fIn').hidden=false;$('#fUp').hidden=true;$('#segIn').setAttribute('aria-pressed',true);$('#segUp').setAttribute('aria-pressed',false);say('',0,'#mLogin')};
@@ -653,7 +742,9 @@ $('#fUp').addEventListener('submit',async e=>{e.preventDefault();
   const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
   if(error)return say(errTxt(error),1,'#mLogin');startApp(data.user)});
 $('#logout').onclick=async()=>{if(outbox.length&&!navigator.onLine)return say('Des opérations attendent la connexion : reconnectez-vous à Internet avant de vous déconnecter.',1);await sb.auth.signOut();LS.set('am-cur',null);showLogin()};
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+$('#menuBtn').onclick=()=>menu(true);$('#menuClose').onclick=()=>menu(false);$('#menuFond').onclick=()=>menu(false);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#menu').classList.contains('open'))menu(false)});
+$('#menu').addEventListener('click',e=>{if(e.target.closest('#logout')){menu(false);return}const b=e.target.closest('[data-go]');if(!b)return;aller(b.dataset.go);menu(false)});
 $('#agSel').onchange=e=>choose(e.target.value);
 $('#date').onchange=e=>go(e.target.value);$('#prev').onclick=()=>go(shift(date,-1));$('#next').onclick=()=>go(shift(date,1));$('#today').onclick=()=>go(iso(new Date()));
 
@@ -719,7 +810,7 @@ $('#fPoint').addEventListener('submit',async e=>{e.preventDefault();
   const {data,error}=await sb.from('am_agences').insert({nom:$('#nPt').value.trim(),proprietaire:me.id}).select('id').single();
   if(error)return say(errTxt(error),1,'#msgS');$('#nPt').value='';await loadMembres();choose(data.id);say('Point créé. Ajoutez-lui des agents ci-dessus.',0,'#msgS')});
 
-$('#aboGo').onclick=()=>{show('reglages');$('#secAbo').scrollIntoView({behavior:'smooth'})};
+$('#aboGo').onclick=()=>aller('abo');
 $('#aboBtns').addEventListener('click',e=>{const b=e.target.closest('.paye');if(!b||!abo)return;
   const m=+b.dataset.m,pts=+abo.points||1;
   const t=`Bonjour, je souhaite renouveler mon abonnement Agence mobile Pro.\nCompte : ${me.email||''}\nNom : ${me.nom||''}\nPoints de vente : ${pts}\nDurée : ${m===12?'1 an':m+' mois'}\nMontant : ${fmt(prixPour(pts,m))} FCFA\nRéférence du paiement : `;
