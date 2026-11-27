@@ -134,6 +134,20 @@ header .sub b{color:#fff}
 .menu em{margin-left:auto;font-style:normal;font-size:13px;color:var(--mut)}
 .menu hr{border:0;border-top:1px solid var(--line);margin:10px 0;width:100%}
 @media(prefers-reduced-motion:reduce){.menu,.menu.open{transition:none}}
+/* espace fournisseur */
+body.fourn .cli,body.fourn .dnav,body.fourn #aboBand,body:not(.fourn) .adm,body.fourn .admx{display:none!important}
+#tAdmin:not([data-a=dash]) .a-dash,#tAdmin:not([data-a=clients]) .a-clients,#tAdmin:not([data-a=paie]) .a-paie,
+#tAdmin:not([data-a=relances]) .a-relances,#tAdmin:not([data-a=reglages]) .a-reglages{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chips button{min-height:38px;border-width:1px;border-radius:999px;padding:0 12px;font-size:14px;font-weight:600}
+.chips button[aria-pressed=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.todo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.todo>div{flex:1 1 220px}.todo small{color:var(--mut)}
+.mrow{display:grid;grid-template-columns:7em minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0}
+.mrow .bar{background:var(--line)}.mrow .bar i{background:var(--brand)}
+.rgrp{margin:6px 0 18px}.rgrp h3{margin:0 0 4px}
+.btn-lien{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border:1px solid var(--ink);border-radius:4px;font-weight:600;text-decoration:none;color:inherit;font-size:15px}
+.btn-lien.wa{background:#1fa855;border-color:#1fa855;color:#fff}
 /* caisse découpée en 4 parties sur téléphone */
 .mini{display:none}
 .pt0{padding-top:0}
@@ -224,17 +238,25 @@ header .sub b{color:#fff}
 <div class="fond" id="menuFond" hidden></div>
 <nav class="menu" id="menu" aria-label="Menu principal">
   <div class="mhead"><b id="mNom"></b><span id="mRole"></span><button class="mclose" id="menuClose" aria-label="Fermer le menu">✕</button></div>
-  <p class="mgrp">Caisse du jour</p>
-  <button data-go="caisse:saisie"><span aria-hidden="true">➕</span>Saisie d'une opération</button>
-  <button data-go="caisse:caisse"><span aria-hidden="true">💰</span>Caisse et float</button>
-  <button data-go="caisse:journal"><span aria-hidden="true">📋</span>Journal du jour<em id="nJ"></em></button>
-  <button data-go="caisse:bilan"><span aria-hidden="true">📊</span>Bilan et clôture</button>
-  <p class="mgrp own">Propriétaire</p>
-  <button class="own" data-go="patron"><span aria-hidden="true">🏪</span>Tableau du propriétaire</button>
-  <button class="own" data-go="reglages"><span aria-hidden="true">👥</span>Agents et réglages</button>
-  <button class="own" data-go="abo"><span aria-hidden="true">⭐</span>Mon abonnement</button>
-  <p class="mgrp adm" hidden>Fournisseur de l'appli</p>
-  <button class="adm" data-go="admin" hidden><span aria-hidden="true">🛠️</span>Administration</button>
+  <!-- Espace fournisseur (administrateur) -->
+  <p class="mgrp adm" hidden>Mon espace fournisseur</p>
+  <button class="adm" data-go="admin:dash" hidden><span aria-hidden="true">📈</span>Tableau de bord</button>
+  <button class="adm" data-go="admin:clients" hidden><span aria-hidden="true">👥</span>Clients<em id="nCli"></em></button>
+  <button class="adm" data-go="admin:paie" hidden><span aria-hidden="true">💳</span>Paiements</button>
+  <button class="adm" data-go="admin:relances" hidden><span aria-hidden="true">📣</span>Relances<em id="nRel"></em></button>
+  <button class="adm" data-go="admin:reglages" hidden><span aria-hidden="true">⚙️</span>Réglages de l'appli</button>
+  <button class="adm" id="vDemo" hidden><span aria-hidden="true">🧪</span>Mode démo (vue de mes clients)</button>
+  <button class="admx" id="vFourn" hidden><span aria-hidden="true">🛠️</span>Retour à mon espace fournisseur</button>
+  <!-- Interface des clients (propriétaires et agents) -->
+  <p class="mgrp cli">Caisse du jour</p>
+  <button class="cli" data-go="caisse:saisie"><span aria-hidden="true">➕</span>Saisie d'une opération</button>
+  <button class="cli" data-go="caisse:caisse"><span aria-hidden="true">💰</span>Caisse et float</button>
+  <button class="cli" data-go="caisse:journal"><span aria-hidden="true">📋</span>Journal du jour<em id="nJ"></em></button>
+  <button class="cli" data-go="caisse:bilan"><span aria-hidden="true">📊</span>Bilan et clôture</button>
+  <p class="mgrp own cli">Propriétaire</p>
+  <button class="own cli" data-go="patron"><span aria-hidden="true">🏪</span>Tableau du propriétaire</button>
+  <button class="own cli" data-go="reglages"><span aria-hidden="true">👥</span>Agents et réglages</button>
+  <button class="own cli" data-go="abo"><span aria-hidden="true">⭐</span>Mon abonnement</button>
   <hr>
   <button id="logout"><span aria-hidden="true">🚪</span>Déconnexion</button>
 </nav>
@@ -353,14 +375,75 @@ header .sub b{color:#fff}
 </div>
 
 <!-- Administration (fournisseur de l'appli) -->
-<div id="tAdmin" hidden>
-<section class="band"><div class="wrap">
-  <h2>Administration : clients et abonnements</h2>
-  <div class="totbar" id="admTot"></div>
-  <div class="f" style="max-width:360px"><label for="admQ">Rechercher un client</label><input id="admQ" placeholder="Nom ou e-mail"></div>
-  <table class="stack"><thead><tr><th>Client</th><th>Points et agents</th><th>Abonnement</th><th>Dernière opération</th><th class="num">Total payé</th><th>Enregistrer un paiement</th></tr></thead><tbody id="admList"></tbody></table>
-  <p class="empty" id="admEmpty" hidden>Aucun client pour le moment.</p>
-  <p class="msg" id="msgAdm" role="status"></p>
+<div id="tAdmin" data-a="dash" hidden>
+<div class="band" style="padding-bottom:0"><div class="wrap"><p class="msg" id="msgAdm" role="status" style="margin:0"></p></div></div>
+
+<section class="band a-dash"><div class="wrap">
+  <h2>Tableau de bord</h2>
+  <div class="totbar" id="fKpi"></div>
+  <h3 style="margin-top:8px">À faire aujourd'hui</h3>
+  <div id="fTodo"></div>
+  <h3 style="margin-top:22px">Encaissements des 6 derniers mois</h3>
+  <div id="fMois"></div>
+</div></section>
+
+<section class="band a-clients"><div class="wrap">
+  <h2>Mes clients</h2>
+  <div class="chips" id="fFiltres"></div>
+  <input id="admQ" type="search" placeholder="Rechercher : nom, e-mail ou téléphone" aria-label="Rechercher un client" style="max-width:420px;margin-bottom:12px">
+  <table class="stack"><thead><tr><th>Client</th><th>Abonnement</th><th>Points et agents</th><th>Dernière activité</th><th class="num">Total payé</th><th></th></tr></thead><tbody id="admList"></tbody></table>
+  <p class="empty" id="admEmpty" hidden>Aucun client dans cette catégorie.</p>
+</div></section>
+<section class="band sec-blue a-clients" id="fFiche" hidden><div class="wrap">
+  <h2 id="ffNom"></h2>
+  <div class="abobox" id="ffInfos"></div>
+  <div class="actions" id="ffActions"></div>
+  <h3 style="margin-top:18px">Enregistrer un paiement</h3>
+  <div class="cols3">
+    <div class="f"><label for="fM">Durée</label><select id="fM"><option value="1">1 mois</option><option value="3">3 mois</option><option value="6">6 mois</option><option value="12">1 an (2 mois offerts)</option></select></div>
+    <div class="f"><label for="fMo">Moyen de paiement</label><select id="fMo"><option>Wave</option><option>Orange Money</option><option>MTN MoMo</option><option>Moov Money</option><option>Espèces</option><option>Offert</option></select></div>
+    <div class="f"><label for="fMt">Montant reçu (FCFA)</label><input id="fMt" type="number" min="0" step="1" inputmode="numeric"></div>
+    <div class="f"><label for="fRef">Référence du paiement</label><input id="fRef" maxlength="80" placeholder="Ex. : référence Wave"></div>
+    <div class="f"><label>&nbsp;</label><button class="pri" id="fGo" style="width:100%">Prolonger l'abonnement</button></div>
+  </div>
+  <h3>Historique des paiements</h3>
+  <div class="scroll"><table id="ffHist"></table></div>
+  <div class="actions"><button id="ffFermer">Fermer la fiche</button></div>
+</div></section>
+
+<section class="band a-paie"><div class="wrap">
+  <h2>Paiements</h2>
+  <div class="totbar" id="pKpi"></div>
+  <div class="actions"><button class="blk" id="pXls">Exporter les paiements en Excel</button></div>
+  <table class="stack"><thead><tr><th>Date</th><th>Client</th><th class="num">Montant</th><th>Durée</th><th>Moyen</th><th>Référence</th><th>Valable jusqu'au</th></tr></thead><tbody id="pList"></tbody></table>
+  <p class="empty" id="pVide" hidden>Aucun paiement enregistré pour le moment.</p>
+</div></section>
+
+<section class="band a-relances"><div class="wrap">
+  <h2>Relances</h2>
+  <p class="mut">Touchez « WhatsApp » : le message est déjà écrit, il ne reste qu'à l'envoyer. Si le client n'a pas indiqué de numéro, utilisez l'e-mail.</p>
+  <div id="rList"></div>
+</div></section>
+
+<section class="band a-reglages"><div class="wrap">
+  <h2>Réglages de l'appli</h2>
+  <form id="fReg" autocomplete="off">
+    <h3>Tarifs de l'abonnement</h3>
+    <div class="cols3">
+      <div class="f"><label for="gPrix">Prix par point et par mois (FCFA)</label><input id="gPrix" type="number" min="0" step="1" inputmode="numeric" required></div>
+      <div class="f"><label for="gReseau">Prix réduit par point (FCFA)</label><input id="gReseau" type="number" min="0" step="1" inputmode="numeric" required></div>
+      <div class="f"><label for="gSeuil">Prix réduit à partir de (points)</label><input id="gSeuil" type="number" min="1" step="1" inputmode="numeric" required></div>
+      <div class="f"><label for="gEssai">Durée de l'essai gratuit (jours)</label><input id="gEssai" type="number" min="0" max="365" step="1" inputmode="numeric" required></div>
+    </div>
+    <h3>Paiement et contact</h3>
+    <div class="cols3">
+      <div class="f"><label for="gNum">Comment payer (texte affiché aux clients)</label><input id="gNum" maxlength="120" required placeholder="Ex. : Wave au 07 77 35 15 17"></div>
+      <div class="f"><label for="gWa">Votre numéro WhatsApp (avec 225, sans +)</label><input id="gWa" type="tel" inputmode="numeric" maxlength="20" required></div>
+    </div>
+    <button class="pri" id="gSave">Enregistrer les réglages</button>
+  </form>
+  <p class="mut" style="margin-top:12px">Les nouveaux tarifs s'affichent tout de suite chez vos clients. La durée d'essai s'applique aux prochains comptes créés.</p>
+  <p class="msg" id="msgReg" role="status"></p>
 </div></section>
 </div>
 </section>
@@ -500,7 +583,9 @@ function renderHeader(){
   $('#agSel').hidden=membres.length<2;
   document.querySelectorAll('.own').forEach(b=>b.hidden=!isOwner());
   $('#mNom').textContent=me?.nom||'';
-  $('#mRole').textContent=(isOwner()?'Propriétaire':'Agent')+(admin?' · administrateur':'')+(cur?' · '+cur.nom:'');
+  $('#mRole').textContent=modeF?'Fournisseur de l\'appli · administrateur':(isOwner()?'Propriétaire':'Agent')+(admin?' · mode démo':'')+(cur?' · '+cur.nom:'');
+  if(modeF){$('#nomAg').textContent='Espace fournisseur';$('#whoTxt').textContent=(me?.nom||'')+' · administrateur'}
+  $('#vDemo').hidden=!admin||!membres.length;
   setSync();
 }
 function render(){
@@ -617,11 +702,16 @@ function openWa(num,text,el){
 }
 
 /* ================= ABONNEMENT ================= */
-const tarif=n=>n*(n>=ABO.seuilReseau?ABO.prixReseau:ABO.prix);
-const prixPour=(n,mois)=>tarif(Math.max(1,n))*(mois>=12?mois-2:mois); // paiement annuel : 2 mois offerts
+// Réglages de l'appli (tarifs, paiement) : lus sur le serveur, modifiables dans l'espace fournisseur.
+let REG=LS.get('am-reg',null);
+async function loadReglages(){try{const {data}=await sb.from('am_reglages').select('*').eq('id',1).maybeSingle();if(data){REG=data;LS.set('am-reg',REG)}}catch(e){}}
+const R=()=>REG||{prix_point:ABO.prix,prix_reseau:ABO.prixReseau,seuil_reseau:ABO.seuilReseau,essai_jours:30,payer_num:ABO.payerNum,payer_wa:ABO.payerWa};
+const tarif=n=>n*(n>=R().seuil_reseau?R().prix_reseau:R().prix_point);
+const prixMois=(t,mois)=>t*(mois>=12?mois-2:mois); // paiement annuel : 2 mois offerts
+const tarifAbo=()=>+abo?.tarif||tarif(+abo?.points||1);
 const joursEntre=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR');
-const aboExpire=()=>!!abo&&iso(new Date())>abo.fin;
+const aboExpire=()=>!!abo&&(!!abo.suspendu||iso(new Date())>abo.fin);
 async function loadAbo(){
   if(!cur)return;const id=cur.id,k='am-abo:'+id;
   abo=LS.get(k,null);renderAbo();
@@ -631,23 +721,25 @@ async function loadAbo(){
 function renderAbo(){
   const band=$('#aboBand');if(!abo){band.hidden=true;return}
   const n=joursEntre(iso(new Date()),abo.fin),fin=longDate(abo.fin),essai=abo.formule==='essai';let t='';
-  if(n<0)t=isOwner()?`Votre abonnement a pris fin le ${fin}. La saisie est bloquée ; vos données restent consultables et exportables.`
+  if(abo.suspendu)t=isOwner()?`Votre compte est suspendu par le fournisseur de l'appli : la saisie est bloquée, vos données restent consultables. Contactez-le sur WhatsApp au ${R().payer_wa}.`
+                             :`Le compte de ce point est suspendu : la saisie est bloquée. Prévenez le propriétaire.`;
+  else if(n<0)t=isOwner()?`Votre abonnement a pris fin le ${fin}. La saisie est bloquée ; vos données restent consultables et exportables.`
                      :`L'abonnement de ce point a pris fin le ${fin}. La saisie est bloquée : prévenez le propriétaire.`;
   else if(isOwner()&&n<=ABO.rappel)t=(essai?'Votre essai gratuit':'Votre abonnement')+(n===0?' se termine ce soir':` se termine dans ${n} jour${n>1?'s':''}`)+` (${fin}).`;
   else if(!isOwner()&&n<=1)t=`L'abonnement du point se termine ${n===0?'ce soir':'demain'} : prévenez le propriétaire.`;
-  band.hidden=!t;band.classList.toggle('exp',n<0);$('#aboTxt').textContent=t;$('#aboGo').hidden=!isOwner();
+  band.hidden=!t;band.classList.toggle('exp',n<0||!!abo.suspendu);$('#aboTxt').textContent=t;$('#aboGo').hidden=!isOwner();
 }
 async function loadAboPage(){
-  await loadAbo();
+  await Promise.all([loadAbo(),loadReglages()]);
   const box=$('#aboBox');
   if(!abo){box.innerHTML='<p class="mut">Statut indisponible : vérifiez la connexion.</p>';$('#aboPay').innerHTML='';$('#aboBtns').innerHTML='';return}
-  const n=joursEntre(iso(new Date()),abo.fin),pts=+abo.points||1;
-  box.innerHTML=[['Formule',abo.formule==='essai'?'Essai gratuit':'Pro'],['Statut',n<0?'Expiré':'Actif'],['Valable jusqu\'au',dateFr(abo.fin)],
-    ['Jours restants',Math.max(0,n)],['Points de vente',pts],['Tarif mensuel',fmt(tarif(pts))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('');
-  $('#aboPay').innerHTML=`<p>Tarif : ${fmt(ABO.prix)} FCFA par point et par mois, ${fmt(ABO.prixReseau)} FCFA par point à partir de ${ABO.seuilReseau} points. Paiement pour un an : 2 mois offerts.</p>`+
-    (ABO.payerNum?`<p><b>Pour payer :</b> ${esc(ABO.payerNum)}. Touchez ensuite la durée choisie pour envoyer la confirmation par WhatsApp : votre abonnement est prolongé dès réception du paiement.</p>`
-                 :'<p>Pour renouveler, touchez la durée choisie et envoyez le message à votre fournisseur de l\'appli.</p>');
-  $('#aboBtns').innerHTML=[1,3,12].map(m=>`<button class="wa paye" data-m="${m}">${m===12?'1 an':m+' mois'} : ${fmt(prixPour(pts,m))} FCFA</button>`).join('');
+  const n=joursEntre(iso(new Date()),abo.fin),pts=+abo.points||1,g=R();
+  box.innerHTML=[['Formule',abo.formule==='essai'?'Essai gratuit':'Pro'],['Statut',abo.suspendu?'Suspendu':n<0?'Expiré':'Actif'],['Valable jusqu\'au',dateFr(abo.fin)],
+    ['Jours restants',Math.max(0,n)],['Points de vente',pts],['Tarif mensuel',fmt(tarifAbo())+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('');
+  $('#aboPay').innerHTML=`<p>Tarif : ${fmt(g.prix_point)} FCFA par point et par mois, ${fmt(g.prix_reseau)} FCFA par point à partir de ${g.seuil_reseau} points. Paiement pour un an : 2 mois offerts.</p>`+
+    (g.payer_num?`<p><b>Pour payer :</b> ${esc(g.payer_num)}. Touchez ensuite la durée choisie pour envoyer la confirmation par WhatsApp : votre abonnement est prolongé dès réception du paiement.</p>`
+                :'<p>Pour renouveler, touchez la durée choisie et envoyez le message à votre fournisseur de l\'appli.</p>');
+  $('#aboBtns').innerHTML=[1,3,12].map(m=>`<button class="wa paye" data-m="${m}">${m===12?'1 an':m+' mois'} : ${fmt(prixMois(tarifAbo(),m))} FCFA</button>`).join('');
   const {data,error}=await sb.from('am_paiements').select('created_at,mois,montant,moyen,nouvelle_fin').order('created_at',{ascending:false}).limit(24);
   if(error){$('#aboHist').innerHTML='';return say(errTxt(error),1,'#msgAbo')}
   $('#aboHist').innerHTML=data.length?'<thead><tr><th>Date</th><th>Durée</th><th class="num">Montant</th><th>Moyen</th><th>Valable jusqu\'au</th></tr></thead><tbody>'+
@@ -655,42 +747,127 @@ async function loadAboPage(){
     :'<tbody><tr><td class="mut">Aucun paiement pour le moment.</td></tr></tbody>';
 }
 
-/* ================= ADMINISTRATION ================= */
+/* ================= ESPACE FOURNISSEUR (administrateur) ================= */
+let modeF=false,fiches=[],paies=[],filtre='tous',ficheId=null;
 async function checkAdmin(){
   try{const {data}=await sb.rpc('am_suis_admin');admin=data===true}catch(e){admin=false}
-  document.querySelectorAll('.adm').forEach(b=>b.hidden=!admin);
-  if(me)$('#mRole').textContent=(isOwner()?'Propriétaire':'Agent')+(admin?' · administrateur':'')+(cur?' · '+cur.nom:'');
+  document.querySelectorAll('.adm,.admx').forEach(b=>b.hidden=!admin);
+  if(me)renderHeader();
+}
+// Bascule entre l'espace fournisseur et l'interface des clients (mode démo)
+function modeFourn(on){
+  modeF=!!on&&admin;document.body.classList.toggle('fourn',modeF);renderHeader();
+  if(modeF)show('admin');
+  else if(cur){if(vue==='admin')show('caisse')}
+  else say('Aucun point de démonstration : créez-en un depuis l\'inscription.',1,'#msgAdm');
 }
 async function loadAdmin(){
   say('Chargement…',0,'#msgAdm');
-  const {data,error}=await sb.rpc('am_admin_clients');
-  if(error)return say(errTxt(error),1,'#msgAdm');
-  clients=data||[];say('',0,'#msgAdm');renderAdmin();
+  const [a,b]=await Promise.all([sb.rpc('am_admin_fiches'),sb.rpc('am_admin_paiements'),loadReglages()]);
+  if(a.error||b.error)return say(errTxt(a.error||b.error),1,'#msgAdm');
+  fiches=a.data||[];paies=b.data||[];say('',0,'#msgAdm');renderFourn();
 }
-function renderAdmin(){
-  const today=iso(new Date()),q=$('#admQ').value.trim().toLowerCase();
-  const act=clients.filter(c=>c.fin>=today),pay=act.filter(c=>c.formule==='pro');
-  $('#admTot').innerHTML=[['Clients',clients.length],['Abonnements actifs',act.length],['Dont payants',pay.length],['Points actifs',act.reduce((s,c)=>s+ +c.points,0)],
-    ['Revenu mensuel estimé',fmt(pay.reduce((s,c)=>s+tarif(+c.points),0))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
-  const L=clients.filter(c=>!q||(c.nom+' '+c.email).toLowerCase().includes(q));
+const today=()=>iso(new Date());
+const resteJ=c=>joursEntre(today(),c.fin);
+const actif=c=>!c.suspendu&&c.fin>=today();
+const inactif=c=>actif(c)&&c.cree<=shift(today(),-3)&&(!c.derniere||c.derniere<shift(today(),-3));
+const STATUTS={suspendu:['Suspendu','c'],expire:['Expiré','c'],essai:['Essai','o'],pro:['Payant','o']};
+const statut=c=>c.suspendu?'suspendu':resteJ(c)<0?'expire':c.formule==='essai'?'essai':'pro';
+const FILTRES=[['tous','Tous',()=>true],['essai','En essai',c=>actif(c)&&c.formule==='essai'],['pro','Payants',c=>actif(c)&&c.formule==='pro'],
+  ['fin','Fin dans 5 jours',c=>actif(c)&&resteJ(c)<=5],['expire','Expirés',c=>!c.suspendu&&resteJ(c)<0],['inactif','Inactifs',inactif],['suspendu','Suspendus',c=>c.suspendu]];
+const moisDe=d=>String(d).slice(0,7);
+const nomMois=m=>new Date(m+'-15T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+function renderFourn(){
+  renderDash();renderClients();renderPaie();renderRelances();renderRegForm();
+  const rel=relances();$('#nRel').textContent=rel.length||'';$('#nCli').textContent=fiches.length||'';
+}
+function renderDash(){
+  const act=fiches.filter(actif),pay=act.filter(c=>c.formule==='pro'),m0=moisDe(today()),m1=moisDe(shift(today().slice(0,8)+'01',-1));
+  const enc=m=>paies.filter(p=>moisDe(p.created_at)===m).reduce((s,p)=>s+ +p.montant,0);
+  $('#fKpi').innerHTML=[['Clients',fiches.length],['Payants actifs',pay.length],['En essai',act.filter(c=>c.formule==='essai').length],
+    ['Expirés',fiches.filter(c=>!c.suspendu&&resteJ(c)<0).length],['Revenu mensuel estimé',fmt(pay.reduce((s,c)=>s+ +c.tarif,0))+' F'],
+    ['Encaissé ce mois',fmt(enc(m0))+' F'],['Encaissé le mois dernier',fmt(enc(m1))+' F'],['Nouveaux (7 jours)',fiches.filter(c=>c.cree>=shift(today(),-7)).length]]
+    .map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  const rel=relances().slice(0,6);
+  $('#fTodo').innerHTML=rel.length?rel.map(relLigne).join('')+(relances().length>6?`<p><button class="sm" data-go2="admin:relances">Voir les ${relances().length} relances</button></p>`:'')
+    :'<p class="mut">Rien d\'urgent. C\'est le bon moment pour prospecter de nouveaux points.</p>';
+  const mois=[];let d=today().slice(0,8)+'01';for(let i=0;i<6;i++){mois.unshift(moisDe(d));d=shift(d,-1).slice(0,8)+'01'}
+  const v=mois.map(enc),max=Math.max(1,...v);
+  $('#fMois').innerHTML=mois.map((m,i)=>`<div class="mrow"><span>${esc(nomMois(m))}</span><div class="bar"><i style="width:${v[i]/max*100}%"></i></div><b>${fmt(v[i])} F</b></div>`).join('');
+}
+function renderClients(){
+  $('#fFiltres').innerHTML=FILTRES.map(([k,l,f])=>`<button type="button" data-f="${k}" aria-pressed="${filtre===k}">${l} (${fiches.filter(f).length})</button>`).join('');
+  const q=$('#admQ').value.trim().toLowerCase(),f=(FILTRES.find(x=>x[0]===filtre)||FILTRES[0])[2];
+  const L=fiches.filter(f).filter(c=>!q||(c.nom+' '+c.email+' '+c.tel).toLowerCase().includes(q));
   $('#admEmpty').hidden=L.length>0;
-  $('#admList').innerHTML=L.map(c=>{const n=joursEntre(today,c.fin),exp=n<0,pts=Math.max(1,+c.points);
-    return `<tr><td><b>${esc(c.nom||'—')}</b><br><span class="mut">${esc(c.email)}</span></td>
+  $('#admList').innerHTML=L.map(c=>{const n=resteJ(c),[sl,sc]=STATUTS[statut(c)];
+    return `<tr><td><b>${esc(c.nom)}</b><br><span class="mut">${esc(c.email)}${c.tel?' · '+esc(c.tel):''}</span></td>
+      <td><span class="st ${sc}">${sl}</span> ${dateFr(c.fin)}<br><span class="mut">${n<0?'depuis '+(-n)+' j':'reste '+n+' j'}</span></td>
       <td>${c.points} point${c.points>1?'s':''} · ${c.agents} agent${c.agents>1?'s':''}</td>
-      <td><span class="st ${exp?'c':'o'}">${exp?'Expiré':c.formule==='essai'?'Essai':'Pro'}</span> ${dateFr(c.fin)}<br><span class="mut">${exp?'depuis '+(-n)+' j':'reste '+n+' j'}</span></td>
-      <td>${c.derniere_op?new Date(c.derniere_op).toLocaleDateString('fr-FR'):'—'}</td>
-      <td class="num">${fmt(c.total_paye)}</td>
-      <td><div class="actions" style="margin:0" data-p="${esc(c.proprietaire)}" data-n="${pts}">
-        <select class="aM" style="width:auto" aria-label="Durée">${[1,3,6,12].map(m=>`<option value="${m}">${m} mois</option>`).join('')}</select>
-        <select class="aMo" style="width:auto" aria-label="Moyen de paiement"><option>Wave</option><option>Orange Money</option><option>MTN MoMo</option><option>Moov Money</option><option>Espèces</option><option>Offert</option></select>
-        <input class="aMt" type="number" min="0" step="1" inputmode="numeric" value="${prixPour(pts,1)}" style="max-width:120px" aria-label="Montant reçu (FCFA)">
-        <input class="aRef" placeholder="Référence" maxlength="80" style="max-width:150px" aria-label="Référence du paiement">
-        <button class="pri sm aGo">Prolonger</button></div></td></tr>`}).join('');
+      <td>${c.derniere?dateFr(c.derniere):'aucune'}</td><td class="num">${fmt(c.total_paye)}</td>
+      <td><button class="pri sm fOpen" data-p="${esc(c.proprietaire)}">Ouvrir la fiche</button></td></tr>`}).join('');
+  if(ficheId)renderFiche();
+}
+function renderFiche(){
+  const c=fiches.find(x=>x.proprietaire===ficheId);$('#fFiche').hidden=!c;if(!c)return;
+  const n=resteJ(c),[sl]=STATUTS[statut(c)];
+  $('#ffNom').textContent=c.nom;
+  $('#ffInfos').innerHTML=[['Statut',sl],['Valable jusqu\'au',dateFr(c.fin)],[n<0?'Expiré depuis':'Jours restants',Math.abs(n)+' j'],['Inscrit le',dateFr(c.cree)],
+    ['Points de vente',c.points],['Agents actifs',c.agents],['Tarif mensuel',fmt(c.tarif)+' F'],['Total payé',fmt(c.total_paye)+' F'],['Dernière activité',c.derniere?dateFr(c.derniere):'aucune']]
+    .map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('');
+  $('#ffActions').innerHTML=(c.tel?`<button class="wa fWa" data-p="${esc(c.proprietaire)}">WhatsApp</button>`:'')+
+    `<a class="btn-lien" href="mailto:${esc(c.email)}">✉️ ${esc(c.email)}</a>`+
+    `<button class="${c.suspendu?'':'red'} fSusp" data-p="${esc(c.proprietaire)}">${c.suspendu?'Réactiver le compte':'Suspendre le compte'}</button>`;
+  if(document.activeElement?.id!=='fMt')$('#fMt').value=$('#fMo').value==='Offert'?0:prixMois(+c.tarif||0,+$('#fM').value);
+  const h=paies.filter(p=>p.proprietaire===c.proprietaire);
+  $('#ffHist').innerHTML=h.length?'<thead><tr><th>Date</th><th class="num">Montant</th><th>Durée</th><th>Moyen</th><th>Référence</th><th>Valable jusqu\'au</th></tr></thead><tbody>'+
+    h.map(p=>`<tr><td>${new Date(p.created_at).toLocaleDateString('fr-FR')}</td><td class="num">${fmt(p.montant)}</td><td>${p.mois} mois</td><td>${esc(p.moyen)}</td><td>${esc(p.reference)}</td><td>${dateFr(p.nouvelle_fin)}</td></tr>`).join('')+'</tbody>'
+    :'<tbody><tr><td class="mut">Aucun paiement.</td></tr></tbody>';
+}
+function renderPaie(){
+  const m0=moisDe(today()),an=today().slice(0,4);
+  const s=f=>paies.filter(f).reduce((t,p)=>t+ +p.montant,0);
+  $('#pKpi').innerHTML=[['Ce mois',fmt(s(p=>moisDe(p.created_at)===m0))+' F'],['Cette année',fmt(s(p=>String(p.created_at).startsWith(an)))+' F'],
+    ['Depuis le début',fmt(s(()=>true))+' F'],['Nombre de paiements',paies.length]].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  $('#pVide').hidden=paies.length>0;
+  $('#pList').innerHTML=paies.map(p=>`<tr><td>${new Date(p.created_at).toLocaleDateString('fr-FR')}</td><td><b>${esc(p.nom)}</b><br><span class="mut">${esc(p.email)}</span></td><td class="num">${fmt(p.montant)}</td><td>${p.mois} mois</td><td>${esc(p.moyen)}</td><td>${esc(p.reference)}</td><td>${dateFr(p.nouvelle_fin)}</td></tr>`).join('');
+}
+// Relances : qui contacter aujourd'hui, avec le message déjà rédigé
+function relances(){
+  const g=R(),moi=me?.nom||'votre fournisseur',L=[];
+  for(const c of fiches){
+    const n=resteJ(c),t=fmt(c.tarif)+' F par mois',essai=c.formule==='essai';
+    if(c.suspendu)continue;
+    if(n>=0&&n<=5)L.push({c,o:n,k:'Fin proche',d:`${essai?'Essai':'Abonnement'} : ${n===0?'finit ce soir':'finit dans '+n+' j'}`,
+      m:`Bonjour ${c.nom}, ici ${moi} d'Agence mobile Pro. Votre ${essai?'essai gratuit':'abonnement'} se termine ${n===0?'ce soir':'dans '+n+' jour'+(n>1?'s':'')+' ('+dateFr(c.fin)+')'}. Pour continuer sans interruption : ${t}, à payer par ${g.payer_num}. Envoyez-moi ensuite la référence du paiement et je prolonge votre compte. Merci !`});
+    else if(n<0&&n>=-30)L.push({c,o:10-n,k:'Expiré',d:`Expiré depuis ${-n} j : saisie bloquée`,
+      m:`Bonjour ${c.nom}, ici ${moi} d'Agence mobile Pro. Votre abonnement a pris fin le ${dateFr(c.fin)} : la saisie est bloquée, mais toutes vos données sont conservées. Pour réactiver : ${t}, à payer par ${g.payer_num}. Envoyez-moi la référence et je réactive tout de suite.`});
+    else if(c.cree>=shift(today(),-2))L.push({c,o:40,k:'Nouveau client',d:`Inscrit le ${dateFr(c.cree)}`,
+      m:`Bonjour ${c.nom}, bienvenue sur Agence mobile Pro ! Votre essai gratuit court jusqu'au ${dateFr(c.fin)}. Je peux vous aider à créer vos agents et à faire la première ouverture de caisse. Dites-moi quand vous êtes disponible.`});
+    else if(inactif(c))L.push({c,o:60,k:'Inactif',d:c.derniere?`Dernière activité le ${dateFr(c.derniere)}`:'Aucune opération depuis l\'inscription',
+      m:`Bonjour ${c.nom}, ici ${moi} d'Agence mobile Pro. Je vois que l'appli n'est pas utilisée depuis quelques jours. Avez-vous rencontré une difficulté ? Je peux passer former vos agents ou répondre à vos questions.`});
+  }
+  return L.sort((a,b)=>a.o-b.o);
+}
+const waUrl=(tel,msg)=>{let n=String(tel||'').replace(/\D/g,'');if(n.length===10)n='225'+n;return'https://wa.me/'+n+'?text='+encodeURIComponent(msg)};
+const relLigne=r=>`<div class="todo"><div><b>${esc(r.c.nom)}</b> · <span class="st ${r.k==='Expiré'?'c':'o'}">${r.k}</span><br><small>${esc(r.d)} · ${esc(r.c.email)}</small></div>`+
+  (r.c.tel?`<a class="btn-lien wa" href="${esc(waUrl(r.c.tel,r.m))}" target="_blank" rel="noopener">WhatsApp</a>`:'')+
+  `<a class="btn-lien" href="mailto:${esc(r.c.email)}?subject=${encodeURIComponent('Agence mobile Pro')}&body=${encodeURIComponent(r.m)}">E-mail</a>`+
+  `<button class="sm fOpen" data-p="${esc(r.c.proprietaire)}">Fiche</button></div>`;
+function renderRelances(){
+  const L=relances(),grp={};for(const r of L)(grp[r.k]=grp[r.k]||[]).push(r);
+  $('#rList').innerHTML=L.length?Object.entries(grp).map(([k,a])=>`<div class="rgrp"><h3>${k} (${a.length})</h3>${a.map(relLigne).join('')}</div>`).join('')
+    :'<p class="mut">Aucune relance à faire aujourd\'hui.</p>';
+}
+function renderRegForm(){
+  if($('#fReg').contains(document.activeElement))return;const g=R();
+  $('#gPrix').value=g.prix_point;$('#gReseau').value=g.prix_reseau;$('#gSeuil').value=g.seuil_reseau;$('#gEssai').value=g.essai_jours??30;$('#gNum').value=g.payer_num;$('#gWa').value=g.payer_wa;
 }
 
 /* ================= NAVIGATION ================= */
 const VUES={'caisse:saisie':'Saisie d\'une opération','caisse:caisse':'Caisse et float','caisse:journal':'Journal du jour','caisse:bilan':'Bilan et clôture',
-  patron:'Tableau du propriétaire',reglages:'Agents et réglages',abo:'Mon abonnement',admin:'Administration'};
+  patron:'Tableau du propriétaire',reglages:'Agents et réglages',abo:'Mon abonnement',
+  'admin:dash':'Tableau de bord','admin:clients':'Clients','admin:paie':'Paiements','admin:relances':'Relances','admin:reglages':'Réglages de l\'appli'};
 function marquer(k){$('#vueTxt').textContent=VUES[k]||'';document.querySelectorAll('#menu [data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===k))}
 function menu(ouvert){
   $('#menu').classList.toggle('open',ouvert);$('#menuFond').hidden=!ouvert;$('#menuBtn').setAttribute('aria-expanded',ouvert);
@@ -699,12 +876,13 @@ function menu(ouvert){
 function aller(k){
   const [v,s]=k.split(':');
   if(v==='abo'){show('reglages');marquer('abo');setTimeout(()=>$('#secAbo').scrollIntoView({behavior:'smooth'}),60);return}
+  if(v==='admin'){$('#tAdmin').dataset.a=s||'dash';if(s!=='clients'){ficheId=null;$('#fFiche').hidden=true}show('admin');window.scrollTo(0,0);return}
   if(s)$('#tCaisse').dataset.s=s;
   show(v);
   if(s&&matchMedia('(min-width:861px)').matches)document.querySelector('.s-'+s)?.scrollIntoView({behavior:'smooth'});else window.scrollTo(0,0);
 }
 function show(v){
-  vue=v;marquer(v==='caisse'?'caisse:'+$('#tCaisse').dataset.s:v);
+  vue=v;marquer(v==='caisse'?'caisse:'+$('#tCaisse').dataset.s:v==='admin'?'admin:'+$('#tAdmin').dataset.a:v);
   $('#tCaisse').hidden=v!=='caisse';$('#tPatron').hidden=v!=='patron';$('#tReglages').hidden=v!=='reglages';$('#tAdmin').hidden=v!=='admin';
   if(v==='patron')loadPatron();if(v==='reglages'){loadAgents();loadAboPage()}if(v==='admin')loadAdmin();
 }
@@ -718,13 +896,16 @@ const go=d=>{if(!d)return;date=d;say('');say('',0,'#msg2');load();if(vue==='patr
 
 async function startApp(user){
   me={id:user.id,nom:user.user_metadata?.nom||user.email,email:user.email};
-  $('#vLogin').hidden=true;$('#vApp').hidden=false;checkAdmin();
-  try{await loadMembres()}catch(e){membres=LS.get('am-membres:'+me.id,[]);if(!membres.length)say('Connexion au serveur impossible : '+errTxt(e),1)}
+  $('#vLogin').hidden=true;$('#vApp').hidden=false;
+  await Promise.all([checkAdmin(),loadReglages(),(async()=>{try{await loadMembres()}catch(e){membres=LS.get('am-membres:'+me.id,[]);if(!membres.length&&!admin)say('Connexion au serveur impossible : '+errTxt(e),1)}})()]);
   const mm=membres.find(x=>x.role==='proprietaire')||membres[0];if(mm)me.nom=mm.nom||me.nom;
+  if(membres.length)choose(LS.get('am-cur',null)||membres[0].agence_id);
+  // L'administrateur arrive dans son espace fournisseur (sauf s'il était en mode démo)
+  if(admin){modeFourn(true);flush();return}
   if(!membres.length){$('#nomAg').textContent='Aucun point';say('Ce compte n\'est rattaché à aucun point actif. Contactez le propriétaire.',1);renderHeader();return}
-  choose(LS.get('am-cur',null)||membres[0].agence_id);show('caisse');flush();
+  modeFourn(false);show('caisse');flush();
 }
-function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;abo=null;clients=[];document.querySelectorAll('.adm').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
+function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;modeF=false;document.body.classList.remove('fourn');abo=null;fiches=[];paies=[];ficheId=null;document.querySelectorAll('.adm,.admx').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
 
 /* ================= ÉVÉNEMENTS ================= */
 $('#segIn').onclick=()=>{$('#fIn').hidden=false;$('#fUp').hidden=true;$('#segIn').setAttribute('aria-pressed',true);$('#segUp').setAttribute('aria-pressed',false);say('',0,'#mLogin')};
@@ -813,21 +994,51 @@ $('#fPoint').addEventListener('submit',async e=>{e.preventDefault();
 $('#aboGo').onclick=()=>aller('abo');
 $('#aboBtns').addEventListener('click',e=>{const b=e.target.closest('.paye');if(!b||!abo)return;
   const m=+b.dataset.m,pts=+abo.points||1;
-  const t=`Bonjour, je souhaite renouveler mon abonnement Agence mobile Pro.\nCompte : ${me.email||''}\nNom : ${me.nom||''}\nPoints de vente : ${pts}\nDurée : ${m===12?'1 an':m+' mois'}\nMontant : ${fmt(prixPour(pts,m))} FCFA\nRéférence du paiement : `;
-  const n=String(ABO.payerWa||'').replace(/\D/g,''),url=(n?`https://wa.me/${n}`:'https://wa.me/')+'?text='+encodeURIComponent(t);
+  const t=`Bonjour, je souhaite renouveler mon abonnement Agence mobile Pro.\nCompte : ${me.email||''}\nNom : ${me.nom||''}\nPoints de vente : ${pts}\nDurée : ${m===12?'1 an':m+' mois'}\nMontant : ${fmt(prixMois(tarifAbo(),m))} FCFA\nRéférence du paiement : `;
+  const n=String(R().payer_wa||'').replace(/\D/g,''),url=(n?`https://wa.me/${n}`:'https://wa.me/')+'?text='+encodeURIComponent(t);
   const w=window.open(url,'_blank');if(!w)location.href=url;
   say('WhatsApp ouvert : ajoutez la référence de votre paiement puis envoyez le message.',0,'#msgAbo')});
-$('#admQ').addEventListener('input',renderAdmin);
-$('#admList').addEventListener('change',e=>{const box=e.target.closest('[data-p]');if(!box||!e.target.matches('.aM,.aMo'))return;
-  box.querySelector('.aMt').value=box.querySelector('.aMo').value==='Offert'?0:prixPour(+box.dataset.n,+box.querySelector('.aM').value)});
-$('#admList').addEventListener('click',async e=>{const b=e.target.closest('.aGo');if(!b)return;const box=b.closest('[data-p]');
-  const mois=+box.querySelector('.aM').value,montant=Math.round(+box.querySelector('.aMt').value)||0;
-  if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent=`Confirmer ${mois} mois · ${fmt(montant)} F`;return}
+
+/* ---------- Espace fournisseur ---------- */
+$('#vDemo').onclick=()=>{menu(false);modeFourn(false)};
+$('#vFourn').onclick=()=>{menu(false);modeFourn(true)};
+$('#tAdmin').addEventListener('click',e=>{const g=e.target.closest('[data-go2]');if(g)aller(g.dataset.go2)});
+$('#fFiltres').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filtre=b.dataset.f;renderClients()});
+$('#admQ').addEventListener('input',renderClients);
+$('#tAdmin').addEventListener('click',e=>{const b=e.target.closest('.fOpen');if(!b)return;ficheId=b.dataset.p;
+  $('#fM').value='1';$('#fMo').value='Wave';$('#fRef').value='';$('#fMt').blur();
+  if($('#tAdmin').dataset.a!=='clients')aller('admin:clients');renderFiche();$('#fFiche').scrollIntoView({behavior:'smooth'})});
+$('#ffFermer').onclick=()=>{ficheId=null;$('#fFiche').hidden=true;window.scrollTo(0,0)};
+for(const s of ['#fM','#fMo'])$(s).addEventListener('change',()=>{const c=fiches.find(x=>x.proprietaire===ficheId);if(c)$('#fMt').value=$('#fMo').value==='Offert'?0:prixMois(+c.tarif||0,+$('#fM').value)});
+$('#fGo').onclick=async()=>{const b=$('#fGo'),c=fiches.find(x=>x.proprietaire===ficheId);if(!c)return;
+  const mois=+$('#fM').value,montant=Math.max(0,Math.round(+$('#fMt').value)||0);
+  if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent=`Confirmer : ${mois} mois · ${fmt(montant)} F`;b.classList.add('red');return}
   b.disabled=true;
-  const {data,error}=await sb.rpc('am_admin_prolonger',{p:box.dataset.p,mois,montant,moyen:box.querySelector('.aMo').value,reference:box.querySelector('.aRef').value.trim()});
-  b.disabled=false;b.dataset.c='';b.textContent='Prolonger';
+  const {data,error}=await sb.rpc('am_admin_prolonger',{p:c.proprietaire,mois,montant,moyen:$('#fMo').value,reference:$('#fRef').value.trim()});
+  b.disabled=false;b.dataset.c='';b.textContent='Prolonger l\'abonnement';b.classList.remove('red');
   if(error)return say(errTxt(error),1,'#msgAdm');
-  await loadAdmin();say('Abonnement prolongé jusqu\'au '+dateFr(data)+'.',0,'#msgAdm')});
+  $('#fRef').value='';await loadAdmin();say(`Abonnement de ${c.nom} prolongé jusqu'au ${dateFr(data)}.`,0,'#msgAdm');window.scrollTo(0,0)};
+$('#ffActions').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const c=fiches.find(x=>x.proprietaire===b.dataset.p);if(!c)return;
+  if(b.classList.contains('fWa')){const r=relances().find(x=>x.c.proprietaire===c.proprietaire);
+    const m=r?r.m:`Bonjour ${c.nom}, ici ${me.nom} d'Agence mobile Pro. `;const w=window.open(waUrl(c.tel,m),'_blank');if(!w)location.href=waUrl(c.tel,m);return}
+  if(b.classList.contains('fSusp')){
+    if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent=c.suspendu?'Confirmer la réactivation':'Confirmer la suspension';return}
+    const {error}=await sb.rpc('am_admin_suspendre',{p:c.proprietaire,s:!c.suspendu});
+    if(error)return say(errTxt(error),1,'#msgAdm');
+    await loadAdmin();say(c.suspendu?`Compte de ${c.nom} réactivé.`:`Compte de ${c.nom} suspendu : sa saisie est bloquée.`,0,'#msgAdm')}});
+$('#pXls').onclick=()=>{const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheet([['Date','Client','E-mail','Montant','Durée (mois)','Moyen','Référence','Valable jusqu\'au'],
+    ...paies.map(p=>[new Date(p.created_at).toLocaleDateString('fr-FR'),p.nom,p.email,+p.montant,p.mois,p.moyen,p.reference,dateFr(p.nouvelle_fin)])],[12,22,28,12,12,14,18,16]),'Paiements');
+  XLSX.utils.book_append_sheet(wb,sheet([['Client','E-mail','Téléphone','Statut','Fin','Points','Agents','Tarif mensuel','Total payé','Inscrit le','Dernière activité'],
+    ...fiches.map(c=>[c.nom,c.email,c.tel,STATUTS[statut(c)][0],dateFr(c.fin),+c.points,+c.agents,+c.tarif,+c.total_paye,dateFr(c.cree),c.derniere?dateFr(c.derniere):''])],[22,28,16,10,12,8,8,14,12,12,16]),'Clients');
+  saveWb(wb,`clients-et-paiements-${today()}.xlsx`,'#msgAdm')};
+$('#fReg').addEventListener('submit',async e=>{e.preventDefault();
+  const r={prix_point:Math.round(+$('#gPrix').value),prix_reseau:Math.round(+$('#gReseau').value),seuil_reseau:Math.round(+$('#gSeuil').value),
+    essai_jours:Math.round(+$('#gEssai').value),payer_num:$('#gNum').value.trim(),payer_wa:$('#gWa').value.replace(/\D/g,'')};
+  if(!(r.prix_point>=0&&r.prix_reseau>=0&&r.seuil_reseau>=1&&r.essai_jours>=0&&r.essai_jours<=365&&r.payer_num))return say('Vérifiez les valeurs saisies.',1,'#msgReg');
+  if(r.payer_wa.length===10)r.payer_wa='225'+r.payer_wa;
+  const {error}=await sb.rpc('am_admin_reglages',{r});if(error)return say(errTxt(error),1,'#msgReg');
+  await loadReglages();document.activeElement?.blur();renderRegForm();await loadAdmin();say('Réglages enregistrés : ils s\'appliquent tout de suite.',0,'#msgReg')});
 
 /* ================= DÉMARRAGE ================= */
 renderTypes();

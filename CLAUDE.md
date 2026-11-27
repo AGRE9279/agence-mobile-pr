@@ -28,6 +28,14 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - Côté appli : constante `ABO` (tarifs, `payerWa`, `payerNum`), bandeau d'alerte (rappel 5 jours avant), section « Mon abonnement » dans les réglages, onglet « Administration » visible des admins.
 - Ajouter un admin : `insert into am_admins(user_id) select id from auth.users where email = '...'`.
 
+## Espace fournisseur (migration am_espace_fournisseur)
+- Un administrateur arrive toujours sur son espace fournisseur à la connexion (`modeF`, classe `body.fourn`). Menu : Tableau de bord, Clients (filtres et fiche), Paiements, Relances (messages WhatsApp ou e-mail déjà rédigés), Réglages de l'appli. Le bouton « Mode démo » bascule vers l'interface des clients (points DEMO), et un bouton permet de revenir.
+- Classes CSS : `.cli` (interface client, cachée en mode fournisseur), `.adm` (visible seulement en mode fournisseur), `.admx` (bouton de retour, visible en mode démo).
+- `am_reglages` (une seule ligne, id = 1) : prix_point, prix_reseau, seuil_reseau, essai_jours, payer_num, payer_wa. Lecture pour tous les connectés, écriture par `am_admin_reglages(jsonb)` seulement. `am_priv.am_tarif` et l'essai (`am_essai_abonnement`) lisent ces réglages ; l'appli aussi (`REG`, `R()`), avec la constante `ABO` en secours.
+- `am_abonnements.suspendu` : bloque la saisie (`am_abo_ok`). Se règle avec `am_admin_suspendre(p, s)`. Renvoyé par `am_abo_statut`.
+- RPC admin : `am_admin_fiches()` (clients, avec téléphone WhatsApp du point, dernière activité, tarif), `am_admin_paiements()`. Les anciennes `am_admin_clients()` et `am_admin_tarifs()` ne sont plus utilisées par l'appli.
+- Confidentialité : l'espace fournisseur ne lit jamais les opérations ni les montants des caisses des clients, seulement la date de dernière activité.
+
 ## Rapport admin WhatsApp (migration am_rapport_whatsapp)
 - Tâche pg_cron `am-rapport-matin`, `0 7 * * *` (7 h Abidjan = UTC), qui appelle `am_priv.am_envoyer_rapport()`. Celle-ci envoie par pg_net un GET vers TextMeBot (`api.textmebot.com/send.php`).
 - Texte : `am_priv.am_rapport_texte(date)`, aperçu sans envoi avec `select am_priv.am_rapport_texte(current_date)`. Contenu : suivi des clients seulement (jamais leurs caisses), plus un bilan de la semaine le lundi.
