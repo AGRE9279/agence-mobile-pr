@@ -134,6 +134,20 @@ header .sub b{color:#fff}
 .menu em{margin-left:auto;font-style:normal;font-size:13px;color:var(--mut)}
 .menu hr{border:0;border-top:1px solid var(--line);margin:10px 0;width:100%}
 @media(prefers-reduced-motion:reduce){.menu,.menu.open{transition:none}}
+/* boutique */
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.pbtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:76px;padding:10px 12px;text-align:left;border:2px solid var(--line);border-radius:8px;font-weight:600;background:var(--bg)}
+.pbtn:active{transform:scale(.98)}
+.pbtn b{font-size:15px;line-height:1.2}.pbtn span{color:var(--cash);font-weight:800}.pbtn small{color:var(--mut);font-weight:500;font-size:12px}
+.pbtn.bas small{color:var(--red);font-weight:700}
+.panier{background:var(--soft);border-radius:8px;padding:clamp(14px,2vw,22px);align-self:start}
+.pl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.pl .q{display:flex;align-items:center;gap:6px}.pl .q button{width:36px;min-height:36px;padding:0;border-width:1px}
+.pl .lt{font-weight:700;text-align:right;min-width:70px}
+.vbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;min-height:56px;background:var(--cash);border-color:var(--cash);color:#fff;font-size:17px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+@media(min-width:861px){.vbar{display:none!important}}
+@media(max-width:860px){#tVente{padding-bottom:84px}}
+.vtot{display:flex;justify-content:space-between;align-items:baseline;font-size:20px;margin:12px 0 14px}.vtot b{font-size:30px;font-weight:800;color:var(--cash)}
 /* caisse découpée en 4 parties sur téléphone */
 .mini{display:none}
 .pt0{padding-top:0}
@@ -191,6 +205,7 @@ header .sub b{color:#fff}
     <form id="fUp" hidden>
       <div class="f"><label for="upNom">Votre nom</label><input id="upNom" required></div>
       <div class="f"><label for="upAg">Nom de votre premier point</label><input id="upAg" placeholder="Ex. : Agence Cocody Centre" required></div>
+      <div class="f"><label for="upAct">Activité du point</label><select id="upAct"><option value="momo">Mobile Money</option><option value="boutique">Boutique (vente de produits)</option><option value="les2">Mobile Money + boutique</option></select></div>
       <div class="f"><label for="upMail">Adresse e-mail</label><input id="upMail" type="email" autocomplete="email" required></div>
       <div class="f"><label for="upPw">Mot de passe (8 caractères minimum)</label><input id="upPw" type="password" minlength="8" autocomplete="new-password" required></div>
       <button class="pri" style="width:100%">Créer mon compte</button>
@@ -224,9 +239,13 @@ header .sub b{color:#fff}
 <div class="fond" id="menuFond" hidden></div>
 <nav class="menu" id="menu" aria-label="Menu principal">
   <div class="mhead"><b id="mNom"></b><span id="mRole"></span><button class="mclose" id="menuClose" aria-label="Fermer le menu">✕</button></div>
+  <p class="mgrp bq">Boutique</p>
+  <button class="bq" data-go="vente"><span aria-hidden="true">🛒</span>Vente</button>
+  <button class="bq" data-go="stock"><span aria-hidden="true">📦</span>Stock et produits</button>
+  <button class="bq" data-go="credits"><span aria-hidden="true">🧾</span>Crédits clients</button>
   <p class="mgrp">Caisse du jour</p>
-  <button data-go="caisse:saisie"><span aria-hidden="true">➕</span>Saisie d'une opération</button>
-  <button data-go="caisse:caisse"><span aria-hidden="true">💰</span>Caisse et float</button>
+  <button class="mm" data-go="caisse:saisie"><span aria-hidden="true">➕</span>Opération Mobile Money</button>
+  <button data-go="caisse:caisse"><span aria-hidden="true">💰</span>Caisse</button>
   <button data-go="caisse:journal"><span aria-hidden="true">📋</span>Journal du jour<em id="nJ"></em></button>
   <button data-go="caisse:bilan"><span aria-hidden="true">📊</span>Bilan et clôture</button>
   <p class="mgrp own">Propriétaire</p>
@@ -242,7 +261,7 @@ header .sub b{color:#fff}
 <!-- Caisse -->
 <div id="tCaisse" data-s="saisie">
 <section class="band s-top"><div class="wrap grid">
-  <form id="form" class="s-saisie" autocomplete="off">
+  <form id="form" class="s-saisie mm" autocomplete="off">
     <h2>Nouvelle opération</h2>
     <p class="mini" id="miniCash"></p>
     <fieldset class="types" id="types"><legend>Type d'opération</legend></fieldset>
@@ -262,16 +281,24 @@ header .sub b{color:#fff}
     <label>Espèces en caisse (théorique)</label>
     <div class="big" id="cash">0<span class="cur">FCFA</span></div>
     <div class="kv" id="cashKv"></div>
-    <h3>Float électronique par opérateur</h3>
-    <div id="floats"></div>
+    <div class="mm"><h3>Float électronique par opérateur</h3>
+    <div id="floats"></div></div>
     <div class="kv" id="comKv" style="margin-bottom:0"></div>
   </aside>
 </div></section>
 
 <section class="band s-journal pt0"><div class="wrap">
   <h2 style="color:var(--ink)">Journal du jour</h2>
+  <div class="mm">
+  <h3 class="bq">Opérations Mobile Money</h3>
   <table class="jr"><thead><tr><th>Heure</th><th>Type</th><th>Opérateur</th><th class="num">Montant</th><th class="num">Commission</th><th>Client</th><th>Agent</th><th>Note</th><th></th></tr></thead><tbody id="journal"></tbody></table>
   <p class="empty" id="empty">Aucune opération pour cette journée.</p>
+  </div>
+  <div class="bq">
+  <h3 class="mm" style="margin-top:20px">Boutique</h3>
+  <table class="jr"><thead><tr><th>Heure</th><th>Type</th><th>Détail</th><th class="num">Montant</th><th class="num">Bénéfice</th><th>Client</th><th>Agent</th><th>Note</th><th></th></tr></thead><tbody id="bJournal"></tbody></table>
+  <p class="empty" id="bEmpty">Aucune vente pour cette journée.</p>
+  </div>
 </div></section>
 
 <section class="band sec-bilan s-bilan"><div class="wrap">
@@ -280,7 +307,8 @@ header .sub b{color:#fff}
   <div class="cols3" id="ouv"></div>
   <div class="actions"><button id="reprise">Reprendre la clôture de la veille</button></div>
   <div class="bil" id="bil"></div>
-  <h3>Par opérateur</h3><div class="scroll"><table id="tPer"></table></div>
+  <div class="bq"><h3>Boutique</h3><div class="bil" id="bilB"></div></div>
+  <div class="mm"><h3>Par opérateur</h3><div class="scroll"><table id="tPer"></table></div></div>
   <h3 style="margin-top:22px">Par agent</h3><div class="scroll"><table id="tAg"></table></div>
   <h3 style="margin-top:24px">Comptage et clôture</h3>
   <div class="cols3"><div class="f"><label for="compte">Espèces comptées en caisse (FCFA)</label><input id="compte" type="number" min="0" step="1" inputmode="numeric"></div></div>
@@ -291,6 +319,100 @@ header .sub b{color:#fff}
     <button class="wa" id="waDay">Envoyer le bilan par WhatsApp</button>
   </div>
   <p class="msg" id="msg2" role="status"></p>
+</div></section>
+</div>
+
+<!-- Boutique : vente -->
+<div id="tVente" hidden>
+<section class="band"><div class="wrap grid">
+  <div>
+    <h2>Nouvelle vente</h2>
+    <p class="mini" id="vMini" style="display:block"></p>
+    <input id="vQ" type="search" placeholder="Rechercher un produit…" aria-label="Rechercher un produit" style="margin-bottom:12px">
+    <div class="prods" id="vProds"></div>
+    <p class="empty" id="vVide" hidden></p>
+  </div>
+  <div class="panier">
+    <h3>Panier</h3>
+    <div id="vPanier"></div>
+    <div class="vtot"><span>Total</span><b id="vTot">0 F</b></div>
+    <fieldset class="types" id="vMode"><legend>Paiement</legend>
+      <label style="margin:0;color:inherit;font-size:inherit;--c:#0b8a4a"><input type="radio" name="vmode" value="especes" checked><span>Espèces</span></label>
+      <label style="margin:0;color:inherit;font-size:inherit;--c:#1f6feb"><input type="radio" name="vmode" value="mobile"><span>Mobile Money</span></label>
+      <label style="margin:0;color:inherit;font-size:inherit;--c:#c98a00"><input type="radio" name="vmode" value="credit"><span>À crédit</span></label>
+    </fieldset>
+    <div id="vEsp" class="f"><label for="vRecu">Montant reçu du client (FCFA)</label><input id="vRecu" type="number" min="0" step="1" inputmode="numeric" placeholder="Pour calculer la monnaie"><p class="mini" id="vRendu" style="display:block;margin:6px 0 0"></p></div>
+    <div id="vCred" hidden>
+      <div class="f"><label for="vClient">Client</label><select id="vClient"></select></div>
+      <div class="row2" id="vNewCli" hidden>
+        <div class="f"><label for="vCliNom">Nom du client</label><input id="vCliNom" maxlength="80"></div>
+        <div class="f"><label for="vCliTel">Téléphone</label><input id="vCliTel" type="tel" inputmode="tel" maxlength="30"></div>
+      </div>
+      <div class="f"><label for="vAcompte">Payé maintenant en espèces (FCFA)</label><input id="vAcompte" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+    </div>
+    <div class="actions"><button class="pri" id="vValider">Valider la vente</button><button id="vVider">Vider le panier</button></div>
+    <p class="msg" id="msgV" role="status"></p>
+  </div>
+</div></section>
+<button type="button" class="vbar" id="vBar" hidden></button>
+</div>
+
+<!-- Boutique : stock et produits -->
+<div id="tStock" hidden>
+<section class="band"><div class="wrap">
+  <h2>Stock et produits</h2>
+  <div class="totbar" id="sTot"></div>
+  <input id="sQ" type="search" placeholder="Rechercher un produit…" aria-label="Rechercher un produit" style="max-width:360px;margin-bottom:12px">
+  <table class="stack" id="sList"></table>
+  <p class="empty" id="sVide" hidden>Aucun produit. Le propriétaire les ajoute ci-dessous.</p>
+  <p class="msg" id="msgSt" role="status"></p>
+</div></section>
+<section class="band sec-blue"><div class="wrap">
+  <h2>Entrée de marchandise</h2>
+  <form id="fEntree" class="cols3" autocomplete="off">
+    <div class="f"><label for="eProd">Produit</label><select id="eProd" required></select></div>
+    <div class="f"><label for="eQ">Quantité reçue</label><input id="eQ" type="number" step="1" inputmode="numeric" required></div>
+    <div class="f"><label for="eCout">Coût total payé (FCFA)</label><input id="eCout" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+    <div class="f"><label for="eNote">Note</label><input id="eNote" maxlength="200" placeholder="Fournisseur, motif…"></div>
+    <div class="f"><label style="display:flex;gap:8px;align-items:center;color:inherit"><input type="checkbox" id="eCaisse" style="width:auto;min-height:0"> Payé avec l'argent de la caisse</label></div>
+    <div class="f"><button class="pri" style="width:100%">Enregistrer l'entrée</button></div>
+  </form>
+  <p class="mut">Pour une perte, une casse ou une erreur de stock, mettez une quantité négative (ex. -2).</p>
+  <p class="msg" id="msgE" role="status"></p>
+</div></section>
+<section class="band own"><div class="wrap">
+  <h2 id="pTitre">Ajouter un produit</h2>
+  <form id="fProduit" class="cols3" autocomplete="off">
+    <input type="hidden" id="pId">
+    <div class="f"><label for="pNom">Nom du produit</label><input id="pNom" maxlength="80" required placeholder="Ex. : Cahier 100 pages"></div>
+    <div class="f"><label for="pCat">Catégorie</label><input id="pCat" maxlength="40" placeholder="Ex. : Papeterie"></div>
+    <div class="f"><label for="pPv">Prix de vente (FCFA)</label><input id="pPv" type="number" min="0" step="1" inputmode="numeric" required></div>
+    <div class="f"><label for="pPa">Prix d'achat (FCFA)</label><input id="pPa" type="number" min="0" step="1" inputmode="numeric" placeholder="Pour calculer le bénéfice"></div>
+    <div class="f" id="pStockF"><label for="pStock">Stock de départ</label><input id="pStock" type="number" step="1" inputmode="numeric" placeholder="0"></div>
+    <div class="f"><label for="pSeuil">Alerte quand le stock descend à</label><input id="pSeuil" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+    <div class="f"><div class="actions" style="margin:0"><button class="pri" id="pBtn">Ajouter le produit</button><button type="button" id="pAnnul" hidden>Annuler</button></div></div>
+  </form>
+  <p class="msg" id="msgP2" role="status"></p>
+</div></section>
+</div>
+
+<!-- Boutique : crédits clients -->
+<div id="tCredits" hidden>
+<section class="band"><div class="wrap">
+  <h2>Crédits clients</h2>
+  <div class="totbar" id="cTot"></div>
+  <table class="stack"><thead><tr><th>Client</th><th>Téléphone</th><th class="num">Reste à payer</th><th>Dernier achat</th><th></th></tr></thead><tbody id="cList"></tbody></table>
+  <p class="empty" id="cVide" hidden>Aucun client ne doit d'argent.</p>
+</div></section>
+<section class="band sec-blue"><div class="wrap">
+  <h2>Enregistrer un remboursement</h2>
+  <form id="fRemb" class="cols3" autocomplete="off">
+    <div class="f"><label for="rCli">Client</label><select id="rCli" required></select></div>
+    <div class="f"><label for="rMt">Montant remboursé (FCFA)</label><input id="rMt" type="number" min="1" step="1" inputmode="numeric" required></div>
+    <div class="f"><label for="rMode">Payé en</label><select id="rMode"><option value="especes">Espèces</option><option value="mobile">Mobile Money</option></select></div>
+    <div class="f"><button class="pri" style="width:100%">Enregistrer</button></div>
+  </form>
+  <p class="msg" id="msgR2" role="status"></p>
 </div></section>
 </div>
 
@@ -333,12 +455,16 @@ header .sub b{color:#fff}
   <h2>Réglages du point</h2>
   <div class="cols3">
     <div class="f"><label for="sNom">Nom du point</label><input id="sNom"></div>
-    <div class="f"><label for="sOps">Opérateurs (un par ligne)</label><textarea id="sOps" style="min-height:120px"></textarea></div>
+    <div class="f"><label>Activités du point</label>
+      <label style="display:flex;gap:8px;align-items:center;color:inherit;font-size:16px"><input type="checkbox" id="sMomo" style="width:auto;min-height:0"> Mobile Money</label>
+      <label style="display:flex;gap:8px;align-items:center;color:inherit;font-size:16px"><input type="checkbox" id="sBout" style="width:auto;min-height:0"> Boutique (vente de produits)</label>
+      <p class="mut">Le prix de l'abonnement dépend des activités choisies.</p></div>
+    <div class="f mm"><label for="sOps">Opérateurs (un par ligne)</label><textarea id="sOps" style="min-height:120px"></textarea></div>
     <div class="f"><label for="sWa">Numéro WhatsApp du propriétaire</label><input id="sWa" type="tel" placeholder="225 07 00 00 00 00"><p class="mut">Avec l'indicatif pays (225 pour la Côte d'Ivoire), sans le +.</p></div>
   </div>
   <button class="pri" id="sSave">Enregistrer les réglages</button>
   <h3 style="margin-top:28px">Nouveau point de vente</h3>
-  <form id="fPoint" class="cols3"><div class="f"><label for="nPt">Nom du nouveau point</label><input id="nPt" required></div><div class="f"><label>&nbsp;</label><button class="pri" style="width:100%">Créer le point</button></div></form>
+  <form id="fPoint" class="cols3"><div class="f"><label for="nPt">Nom du nouveau point</label><input id="nPt" required></div><div class="f"><label for="nAct">Activité</label><select id="nAct"><option value="momo">Mobile Money</option><option value="boutique">Boutique</option><option value="les2">Mobile Money + boutique</option></select></div><div class="f"><label>&nbsp;</label><button class="pri" style="width:100%">Créer le point</button></div></form>
   <p class="msg" id="msgS" role="status"></p>
 </div></section>
 <section class="band sec-blue" id="secAbo"><div class="wrap">
@@ -372,7 +498,8 @@ const SB_URL='https://hpnunfiytwhwbipyihls.supabase.co';
 const SB_KEY='sb_publishable_R-64F9irrhHN0ckbuaUPbA_vJw7MQZB';
 const DOM_AGENT='agents.example.com';
 /* Abonnement : tarifs en FCFA par point et par mois, et coordonnées de paiement du fournisseur. */
-const ABO={prix:5000,prixReseau:4000,seuilReseau:3,rappel:5,
+// Le tarif mensuel est calculé par le serveur (am_priv.am_tarif) : point Mobile Money 5 000 F (4 000 F dès 3 points), boutique seule 3 000 F.
+const ABO={rappel:5,texte:'Point Mobile Money (avec ou sans boutique) : 5 000 F par mois, 4 000 F à partir de 3 points. Boutique seule : 3 000 F par mois.',
   payerWa:'2250595955803',          // numéro WhatsApp du fournisseur, indicatif compris
   payerNum:'Wave au 07 77 35 15 17'}; // texte affiché au client
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'am-pro-auth'}});
@@ -403,7 +530,10 @@ let role='agent';
 let date=iso(new Date()),ops=[],jour={},vue='caisse',chan=null;
 let outbox=LS.get('am-outbox',[]);
 let abo=null,admin=false,clients=[];
+const bq0=()=>({ventes:[],remb:[],entrees:[]});
+let prods=[],clis=[],bq=bq0(),panier=[],credits={v:[],r:[]}; // boutique
 const isOwner=()=>role==='proprietaire';
+const estMM=()=>cur?.momo!==false, estBQ=()=>!!cur?.boutique;
 const cacheKey=()=>`am-cache:${cur?.id}:${date}`;
 
 /* ================= SYNCHRO / FILE D'ATTENTE ================= */
@@ -419,8 +549,8 @@ async function flush(){
   try{
     while(outbox.length){
       const it=outbox[0];let error=null;
-      if(it.k==='ins'){({error}=await sb.from('am_operations').insert(it.row));if(error&&error.code==='23505')error=null}
-      else if(it.k==='del'){({error}=await sb.from('am_operations').delete().eq('id',it.id))}
+      if(it.k==='ins'){({error}=await sb.from(it.t||'am_operations').insert(it.row));if(error&&error.code==='23505')error=null}
+      else if(it.k==='del'){({error}=await sb.from(it.t||'am_operations').delete().eq('id',it.id))}
       else if(it.k==='jour'){({error}=await sb.from('am_jours').upsert(it.row,{onConflict:'agence_id,jour'}))}
       if(error){
         if(/fetch|network/i.test(error.message||'')){break}
@@ -438,36 +568,57 @@ setInterval(flush,20000);
 
 /* ================= CHARGEMENT ================= */
 async function loadMembres(){
-  const {data,error}=await sb.from('am_membres').select('agence_id,role,nom,actif,am_agences(id,nom,operateurs,whatsapp,proprietaire)').eq('user_id',me.id).eq('actif',true);
+  const {data,error}=await sb.from('am_membres').select('agence_id,role,nom,actif,am_agences(id,nom,operateurs,whatsapp,proprietaire,momo,boutique)').eq('user_id',me.id).eq('actif',true);
   if(error)throw error;
   membres=(data||[]).filter(m=>m.am_agences);LS.set('am-membres:'+me.id,membres);
 }
 async function load(quiet){
   if(!cur)return;
-  const c=LS.get(cacheKey(),null);if(c&&!quiet){ops=c.ops;jour=c.jour;render()}
+  const c=LS.get(cacheKey(),null);if(c&&!quiet){ops=c.ops;jour=c.jour;bq=c.bq||bq0();render()}
+  const vide={data:[],error:null},B=estBQ(),id=cur.id;
+  if(B)loadCatalogue();
   try{
-    const [a,b]=await Promise.all([
-      sb.from('am_operations').select('*').eq('agence_id',cur.id).eq('jour',date).order('t').limit(2000),
-      sb.from('am_jours').select('*').eq('agence_id',cur.id).eq('jour',date).maybeSingle()]);
-    if(a.error)throw a.error;if(b.error)throw b.error;
-    ops=a.data||[];jour=b.data||{};LS.set(cacheKey(),{ops,jour});
-  }catch(e){if(!c){ops=[];jour={}}}
+    const [a,b,v,r,e]=await Promise.all([
+      sb.from('am_operations').select('*').eq('agence_id',id).eq('jour',date).order('t').limit(2000),
+      sb.from('am_jours').select('*').eq('agence_id',id).eq('jour',date).maybeSingle(),
+      B?sb.from('am_ventes').select('*').eq('agence_id',id).eq('jour',date).order('t').limit(3000):vide,
+      B?sb.from('am_remboursements').select('*').eq('agence_id',id).eq('jour',date).order('t').limit(2000):vide,
+      B?sb.from('am_entrees').select('*').eq('agence_id',id).eq('jour',date).order('t').limit(2000):vide]);
+    for(const x of [a,b,v,r,e])if(x.error)throw x.error;
+    if(cur?.id!==id)return;
+    ops=a.data||[];jour=b.data||{};bq={ventes:v.data||[],remb:r.data||[],entrees:e.data||[]};LS.set(cacheKey(),{ops,jour,bq});
+  }catch(e){if(!c){ops=[];jour={};bq=bq0()}}
   render();
+}
+async function loadCatalogue(){
+  if(!cur||!estBQ())return;const id=cur.id,k='am-cat:'+id;
+  const c=LS.get(k,null);if(c&&!prods.length){prods=c.prods||[];clis=c.clis||[];renderBoutique()}
+  try{
+    const [p,cl]=await Promise.all([sb.from('am_produits').select('*').eq('agence_id',id).order('nom').limit(3000),
+      sb.from('am_clients').select('*').eq('agence_id',id).order('nom').limit(5000)]);
+    if(p.error)throw p.error;if(cl.error)throw cl.error;if(cur?.id!==id)return;
+    prods=p.data||[];clis=cl.data||[];LS.set(k,{prods,clis});
+  }catch(e){}
+  renderBoutique();
 }
 function subscribe(){
   if(chan){sb.removeChannel(chan);chan=null}
   if(!cur)return;
-  let t=null;const again=()=>{clearTimeout(t);t=setTimeout(()=>{load(true);if(vue==='patron')loadPatron()},400)};
+  let t=null,t2=null;const again=()=>{clearTimeout(t);t=setTimeout(()=>{load(true);if(vue==='patron')loadPatron();if(vue==='credits')loadCredits()},400)};
+  const cat=()=>{clearTimeout(t2);t2=setTimeout(loadCatalogue,400)};
+  const f='agence_id=eq.'+cur.id;
   chan=sb.channel('am-'+cur.id)
-    .on('postgres_changes',{event:'*',schema:'public',table:'am_operations',filter:'agence_id=eq.'+cur.id},again)
-    .on('postgres_changes',{event:'*',schema:'public',table:'am_jours',filter:'agence_id=eq.'+cur.id},again)
-    .subscribe();
+    .on('postgres_changes',{event:'*',schema:'public',table:'am_operations',filter:f},again)
+    .on('postgres_changes',{event:'*',schema:'public',table:'am_jours',filter:f},again);
+  if(estBQ())for(const [tb,fn] of [['am_ventes',again],['am_remboursements',again],['am_entrees',again],['am_produits',cat],['am_clients',cat]])
+    chan.on('postgres_changes',{event:'*',schema:'public',table:tb,filter:f},fn);
+  chan.subscribe();
 }
 
 /* ================= CALCULS ================= */
 function viewOps(){
-  const dels=new Set(outbox.filter(x=>x.k==='del').map(x=>x.id));
-  const pend=outbox.filter(x=>x.k==='ins'&&x.row.agence_id===cur?.id&&x.row.jour===date).map(x=>({...x.row,_p:1}));
+  const dels=new Set(outbox.filter(x=>x.k==='del'&&!x.t).map(x=>x.id));
+  const pend=outbox.filter(x=>x.k==='ins'&&!x.t&&x.row.agence_id===cur?.id&&x.row.jour===date).map(x=>({...x.row,_p:1}));
   const ids=new Set(ops.map(o=>o.id));
   return [...ops.filter(o=>!dels.has(o.id)),...pend.filter(o=>!ids.has(o.id))];
 }
@@ -475,7 +626,26 @@ function viewJour(){
   const p=outbox.filter(x=>x.k==='jour'&&x.row.agence_id===cur?.id&&x.row.jour===date).pop();
   return p?{...jour,...p.row}:jour;
 }
-function calc(list,j,opsList){
+// Données boutique du jour affiché, y compris ce qui attend la connexion
+function viewB(){
+  const del=new Set(outbox.filter(x=>x.k==='del'&&x.t).map(x=>x.id));
+  const mix=(arr,t)=>{const ids=new Set(arr.map(o=>o.id));
+    const pend=outbox.filter(x=>x.k==='ins'&&x.t===t&&x.row.agence_id===cur?.id&&x.row.jour===date).map(x=>({...x.row,_p:1}));
+    return[...arr.filter(o=>!del.has(o.id)),...pend.filter(o=>!ids.has(o.id))]};
+  return{ventes:mix(bq.ventes,'am_ventes'),remb:mix(bq.remb,'am_remboursements'),entrees:mix(bq.entrees,'am_entrees')};
+}
+const viewClis=()=>{const ids=new Set(clis.map(c=>c.id));return[...clis,...outbox.filter(x=>x.k==='ins'&&x.t==='am_clients'&&x.row.agence_id===cur?.id&&!ids.has(x.row.id)).map(x=>x.row)]};
+// Effet de la boutique sur la caisse : ventes en espèces, acomptes, remboursements en espèces, achats payés par la caisse
+function calcB(b){
+  const B={n:0,ca:0,cout:0,esp:0,mob:0,cred:0,acpt:0,remb:0,rembEsp:0,achat:0};
+  for(const x of b?.ventes||[]){const t=+x.total||0;B.n++;B.ca+=t;B.cout+=+x.cout||0;
+    if(x.mode==='especes')B.esp+=t;else if(x.mode==='mobile')B.mob+=t;else{B.acpt+=+x.paye||0;B.cred+=t-(+x.paye||0)}}
+  for(const x of b?.remb||[]){B.remb+=+x.montant||0;if(x.mode==='especes')B.rembEsp+=+x.montant||0}
+  for(const x of b?.entrees||[])if(x.de_caisse)B.achat+=+x.cout||0;
+  B.benef=B.ca-B.cout;B.cin=B.esp+B.acpt+B.rembEsp;B.cout2=B.achat;return B;
+}
+const calcCur=()=>calc(viewOps(),viewJour(),undefined,viewB());
+function calc(list,j,opsList,b){
   const ouv=j.ouv||{cash:0,f:{}};const per={},ag={};
   const P=o=>per[o]||(per[o]={n:0,in:0,out:0,com:0,ouv:+(ouv.f?.[o]||0),fl:0});
   (opsList||cur?.operateurs||[]).forEach(P);
@@ -487,8 +657,10 @@ function calc(list,j,opsList){
     const k=o.agent_nom||'—',a=ag[k]||(ag[k]={n:0,in:0,out:0,com:0});a.n++;t.c>0?a.in+=m:a.out+=m;a.com+=c;
   }
   Object.values(per).forEach(p=>p.fin=p.ouv+p.fl);
+  const B=calcB(b);cin+=B.cin;cout+=B.cout2;
+  for(const x of b?.ventes||[]){const k=x.agent_nom||'—',a=ag[k]||(ag[k]={n:0,in:0,out:0,com:0});a.n++;a.in+=x.mode==='especes'?+x.total||0:x.mode==='credit'?+x.paye||0:0}
   const cash=(+ouv.cash||0)+cin-cout,has=j.compte!==undefined&&j.compte!==null&&j.compte!=='';
-  return{ouv,cin,cout,com,cash,per,ag,n:list.length,compte:has?+j.compte:null,ecart:has?+j.compte-cash:null};
+  return{ouv,cin,cout,com,cash,per,ag,B,n:list.length,compte:has?+j.compte:null,ecart:has?+j.compte-cash:null};
 }
 
 /* ================= AFFICHAGE ================= */
@@ -498,23 +670,28 @@ function renderHeader(){
   $('#whoTxt').textContent=(me?.nom||'')+(isOwner()?' · propriétaire':' · agent');
   $('#agSel').innerHTML=membres.map(m=>`<option value="${esc(m.agence_id)}"${m.agence_id===cur?.id?' selected':''}>${esc(m.am_agences.nom)}</option>`).join('');
   $('#agSel').hidden=membres.length<2;
-  document.querySelectorAll('.own').forEach(b=>b.hidden=!isOwner());
+  // Visibilité : .own = propriétaire, .mm = point Mobile Money, .bq = point boutique
+  const M=estMM(),Q=estBQ();
+  document.querySelectorAll('.own,.mm,.bq').forEach(e=>{const c=e.classList;e.hidden=(c.contains('own')&&!isOwner())||(c.contains('mm')&&!M)||(c.contains('bq')&&!Q)});
   $('#mNom').textContent=me?.nom||'';
   $('#mRole').textContent=(isOwner()?'Propriétaire':'Agent')+(admin?' · administrateur':'')+(cur?' · '+cur.nom:'');
   setSync();
 }
 function render(){
   renderHeader();if(!cur)return;
-  const list=viewOps(),j=viewJour(),r=calc(list,j),clos=!!j.clos;
+  const list=viewOps(),j=viewJour(),vb=viewB(),r=calc(list,j,undefined,vb),clos=!!j.clos,M=estMM(),Q=estBQ(),B=r.B;
   $('#op').innerHTML=(cur.operateurs||[]).map(o=>`<option>${esc(o)}</option>`).join('')||'<option></option>';
   $('#cash').innerHTML=`${fmt(r.cash)}<span class="cur">FCFA</span>`;
-  $('#cashKv').innerHTML=`<span>Ouverture <b>${fmt(r.ouv.cash)}</b></span><span>Entrées <b>+${fmt(r.cin)}</b></span><span>Sorties <b>−${fmt(r.cout)}</b></span><span>Opérations <b>${r.n}</b></span>`;
+  $('#cashKv').innerHTML=`<span>Ouverture <b>${fmt(r.ouv.cash)}</b></span><span>Entrées <b>+${fmt(r.cin)}</b></span><span>Sorties <b>−${fmt(r.cout)}</b></span>`+
+    (M?`<span>Opérations <b>${r.n}</b></span>`:'')+(Q?`<span>Ventes <b>${B.n}</b></span>`:'');
   const L=Object.entries(r.per),max=Math.max(1,...L.map(([,p])=>Math.max(p.fin,p.ouv)));
   $('#floats').innerHTML=L.map(([n,p],i)=>{const low=p.fin<0||(p.ouv>0&&p.fin<p.ouv*.2);return `<div class="fl${low?' low':''}" style="--c:${opColor(n,i)}"><span><span class="dot"></span>${esc(n)}${low?' <span class="tag">float bas</span>':''}</span><div class="bar"><i style="width:${Math.max(0,p.fin)/max*100}%"></i></div><span class="amt">${fmt(p.fin)}</span></div>`}).join('');
-  $('#comKv').innerHTML=`<span>Commissions du jour <b>${fmt(r.com)} FCFA</b></span>`;
+  $('#comKv').innerHTML=(M?`<span>Commissions du jour <b>${fmt(r.com)} FCFA</b></span>`:'')+
+    (Q?`<span>Ventes du jour <b>${fmt(B.ca)} FCFA</b></span>`+(isOwner()?`<span>Bénéfice <b>${fmt(B.benef)} FCFA</b></span>`:''):'');
   const bas=L.filter(([,p])=>p.fin<0||(p.ouv>0&&p.fin<p.ouv*.2)).map(([n])=>n);
   $('#miniCash').innerHTML=`Espèces en caisse : <b>${fmt(r.cash)} F</b> · ${r.n} opération${r.n>1?'s':''}`+(bas.length?` · <b class="neg">float bas : ${esc(bas.join(', '))}</b>`:'');
-  $('#nJ').textContent=list.length||'';
+  $('#nJ').textContent=(M?list.length:0)+(Q?B.n:0)||'';
+  renderBJournal(vb,clos);
   const sorted=[...list].sort((a,b)=>new Date(b.t)-new Date(a.t));
   $('#journal').innerHTML=sorted.map(o=>{const t=TYPES[o.type]||{};const canDel=!clos&&(o._p||!aboExpire()&&(isOwner()||o.agent_id===me.id));
     return `<tr><td>${esc(new Date(o.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))}${o._p?'<br><span class="pend">en attente</span>':''}</td><td><span class="pill" style="--c:${t.k||'#6b7280'}">${esc(t.l||o.type)}</span></td><td>${t.f?`<span class="dot" style="--c:${opColor(o.op,(cur.operateurs||[]).indexOf(o.op))}"></span>${esc(o.op)}`:'—'}</td><td class="num ${t.c<0?'minus':'plus'}">${t.c<0?'−':'+'}${fmt(o.m)}</td><td class="num">${o.com?fmt(o.com):''}</td><td>${esc(o.tel)}</td><td>${esc(o.agent_nom||me.nom)}</td><td>${esc(o.note)}</td><td>${canDel?`<button class="sm del" data-id="${esc(o.id)}">Supprimer</button>`:''}</td></tr>`}).join('');
@@ -522,13 +699,16 @@ function render(){
   const ouvEl=$('#ouv');
   if(!ouvEl.contains(document.activeElement)){
     ouvEl.innerHTML=`<div class="f"><label for="o_cash">Espèces à l'ouverture</label><input id="o_cash" data-k="cash" type="number" min="0" inputmode="numeric" value="${+r.ouv.cash||''}"></div>`+
-      (cur.operateurs||[]).map((o,i)=>`<div class="f"><label for="o_${i}">Float ${esc(o)}</label><input id="o_${i}" data-op="${esc(o)}" type="number" min="0" inputmode="numeric" value="${+(r.ouv.f?.[o]||0)||''}"></div>`).join('');
+      (M?cur.operateurs||[]:[]).map((o,i)=>`<div class="f"><label for="o_${i}">Float ${esc(o)}</label><input id="o_${i}" data-op="${esc(o)}" type="number" min="0" inputmode="numeric" value="${+(r.ouv.f?.[o]||0)||''}"></div>`).join('');
   }
   if(document.activeElement?.id!=='compte')$('#compte').value=r.compte??'';
   const e=r.ecart;
   $('#bil').innerHTML=[['Espèces théoriques',fmt(r.cash),'#1739b8'],['Espèces comptées',r.compte==null?'à saisir':fmt(r.compte),'#0b6fa8'],
-    ['Écart de caisse',e==null?'—':(e>0?'+':e<0?'−':'')+fmt(Math.abs(e)),e==null?'#6b7280':e<0?'#e4002b':'#0b8a4a'],['Commissions',fmt(r.com),'#7b3fe4'],
+    ['Écart de caisse',e==null?'—':(e>0?'+':e<0?'−':'')+fmt(Math.abs(e)),e==null?'#6b7280':e<0?'#e4002b':'#0b8a4a'],...(M?[['Commissions',fmt(r.com),'#7b3fe4']]:[]),
     ['Total entrées',fmt(r.cin),'#0b8a4a'],['Total sorties',fmt(r.cout),'#e4572e']].map(([k,v,t])=>`<div style="--t:${t}"><small>${k}</small><strong>${v}</strong></div>`).join('');
+  $('#bilB').innerHTML=Q?[['Chiffre d\'affaires',fmt(B.ca),'#0b8a4a'],...(isOwner()?[['Bénéfice',fmt(B.benef),'#7b3fe4']]:[]),['Ventes',B.n,'#1739b8'],
+    ['Payé en Mobile Money',fmt(B.mob),'#1f6feb'],['Vendu à crédit',fmt(B.cred),'#c98a00'],['Remboursements reçus',fmt(B.remb),'#00918f'],['Achats payés par la caisse',fmt(B.achat),'#e4572e']]
+    .map(([k,v,t])=>`<div style="--t:${t}"><small>${k}</small><strong>${v}</strong></div>`).join(''):'';
   const tot=L.reduce((s,[,p])=>({n:s.n+p.n,in:s.in+p.in,out:s.out+p.out,com:s.com+p.com,ouv:s.ouv+p.ouv,fin:s.fin+p.fin}),{n:0,in:0,out:0,com:0,ouv:0,fin:0});
   $('#tPer').innerHTML=`<thead><tr><th>Opérateur</th><th class="num">Opérations</th><th class="num">Espèces reçues</th><th class="num">Espèces versées</th><th class="num">Commissions</th><th class="num">Float ouverture</th><th class="num">Float fin</th></tr></thead><tbody>`+
     L.map(([n,p],i)=>`<tr><td><span class="dot" style="--c:${opColor(n,i)}"></span>${esc(n)}</td><td class="num">${p.n}</td><td class="num">${fmt(p.in)}</td><td class="num">${fmt(p.out)}</td><td class="num">${fmt(p.com)}</td><td class="num">${fmt(p.ouv)}</td><td class="num${p.fin<0?' neg':''}">${fmt(p.fin)}</td></tr>`).join('')+
@@ -541,10 +721,120 @@ function render(){
   $('#add').disabled=bloq;$('#reprise').disabled=bloq;$('#compte').disabled=bloq;$('#clore').disabled=aboExpire();$('#rouvrir').disabled=aboExpire();
   ouvEl.querySelectorAll('input').forEach(i=>i.disabled=bloq);
   if(clos)say(isOwner()?'Journée clôturée : rouvrez-la dans le bilan pour corriger.':'Journée clôturée par '+(j.clos_par||'le point')+'. Seul le propriétaire peut la rouvrir.');
+  renderBoutique();
+}
+// Journal boutique : ventes, remboursements, entrées de stock
+const MODES={especes:['Vente espèces','#0b8a4a'],mobile:['Vente Mobile Money','#1f6feb'],credit:['Vente à crédit','#c98a00']};
+function renderBJournal(vb,clos){
+  if(!estBQ()){$('#bJournal').innerHTML='';return}
+  const nomCli=id=>viewClis().find(c=>c.id===id)?.nom||'';
+  const nomProd=id=>prods.find(p=>p.id===id)?.nom||'?';
+  const own=isOwner(),canDel=x=>!clos&&(x._p||!aboExpire()&&(own||x.agent_id===me.id));
+  const heure=x=>esc(new Date(x.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))+(x._p?'<br><span class="pend">en attente</span>':'');
+  const del=(x,t)=>canDel(x)?`<button class="sm bdel" data-id="${esc(x.id)}" data-t="${t}">Supprimer</button>`:'';
+  const rows=[
+    ...vb.ventes.map(x=>{const[m,c]=MODES[x.mode]||['Vente','#6b7280'];return{t:x.t,h:`<tr><td>${heure(x)}</td><td><span class="pill" style="--c:${c}">${m}</span></td><td>${esc((x.lignes||[]).map(l=>l.q+'× '+(l.n||nomProd(l.p))).join(', '))}</td><td class="num plus">+${fmt(x.total)}</td><td class="num">${own?fmt((+x.total||0)-(+x.cout||0)):''}</td><td>${esc(nomCli(x.client_id))}${x.mode==='credit'&&+x.paye?'<br><span class="mut">acompte '+fmt(x.paye)+'</span>':''}</td><td>${esc(x.agent_nom||me.nom)}</td><td>${esc(x.note)}</td><td>${del(x,'am_ventes')}</td></tr>`}}),
+    ...vb.remb.map(x=>({t:x.t,h:`<tr><td>${heure(x)}</td><td><span class="pill" style="--c:#00918f">Remboursement</span></td><td>${x.mode==='mobile'?'Mobile Money':'Espèces'}</td><td class="num plus">+${fmt(x.montant)}</td><td></td><td>${esc(nomCli(x.client_id))}</td><td>${esc(x.agent_nom||me.nom)}</td><td>${esc(x.note)}</td><td>${del(x,'am_remboursements')}</td></tr>`})),
+    ...vb.entrees.map(x=>({t:x.t,h:`<tr><td>${heure(x)}</td><td><span class="pill" style="--c:#6b7280">${x.q<0?'Perte de stock':'Entrée de stock'}</span></td><td>${x.q>0?'+':''}${x.q} ${esc(nomProd(x.produit_id))}</td><td class="num ${x.de_caisse?'minus':''}">${x.de_caisse?'−'+fmt(x.cout):x.cout?fmt(x.cout):''}</td><td></td><td></td><td>${esc(x.agent_nom||me.nom)}</td><td>${esc(x.note)}</td><td>${del(x,'am_entrees')}</td></tr>`}))
+  ].sort((a,b)=>new Date(b.t)-new Date(a.t));
+  $('#bJournal').innerHTML=rows.map(r=>r.h).join('');
+  $('#bEmpty').hidden=rows.length>0;
 }
 function renderTypes(){
   $('#types').innerHTML='<legend>Type d\'opération</legend>'+Object.entries(TYPES).map(([k,t],i)=>`<label style="margin:0;color:inherit;font-size:inherit;--c:${t.k}"><input type="radio" name="type" value="${k}"${i?'':' checked'}><span>${t.l}</span></label>`).join('');
 }
+
+/* ================= BOUTIQUE ================= */
+// Stock affiché = stock du serveur, corrigé de ce qui attend la connexion
+function stockDispo(p){
+  let s=+p.stock||0;
+  for(const x of outbox){
+    if(x.k==='ins'&&x.t==='am_ventes'&&x.row.agence_id===p.agence_id)for(const l of x.row.lignes)if(l.p===p.id)s-=l.q;
+    if(x.k==='ins'&&x.t==='am_entrees'&&x.row.produit_id===p.id)s+=x.row.q;
+  }
+  return s;
+}
+function renderBoutique(){
+  if(!estBQ()||!cur)return;
+  renderClientsSelect();renderVente();
+  if(vue==='stock')renderStock();if(vue==='credits')renderCredits();
+}
+function renderVente(){
+  const q=$('#vQ').value.trim().toLowerCase();
+  const L=prods.filter(p=>p.actif&&(!q||(p.nom+' '+p.categorie).toLowerCase().includes(q)));
+  $('#vProds').innerHTML=L.map(p=>{const s=stockDispo(p),bas=s<=p.seuil;
+    return `<button type="button" class="pbtn${bas?' bas':''}" data-p="${esc(p.id)}"><b>${esc(p.nom)}</b><span>${fmt(p.prix_vente)} F</span><small>Stock : ${s}${bas?' · bas':''}</small></button>`}).join('');
+  $('#vVide').hidden=L.length>0;
+  $('#vVide').textContent=prods.some(p=>p.actif)?'Aucun produit ne correspond à la recherche.':(isOwner()?'Aucun produit : ajoutez-les dans « Stock et produits ».':'Aucun produit : le propriétaire doit les ajouter.');
+  renderPanier();
+}
+function renderPanier(){
+  const tot=panier.reduce((s,l)=>s+l.q*l.pu,0),j=viewJour(),bloq=!!j.clos||aboExpire();
+  $('#vPanier').innerHTML=panier.length?panier.map((l,i)=>`<div class="pl"><div><b>${esc(l.n)}</b><br><small class="mut">${fmt(l.pu)} F l'unité</small></div><div class="q"><button type="button" data-i="${i}" data-d="-1" aria-label="Retirer un ${esc(l.n)}">−</button><b>${l.q}</b><button type="button" data-i="${i}" data-d="1" aria-label="Ajouter un ${esc(l.n)}">+</button></div><div class="lt">${fmt(l.q*l.pu)}</div></div>`).join('')
+    :'<p class="mut">Touchez un produit pour l\'ajouter au panier.</p>';
+  $('#vTot').textContent=fmt(tot)+' F';
+  const nb=panier.reduce((s,l)=>s+l.q,0);$('#vBar').hidden=!nb;
+  $('#vBar').innerHTML=`🛒 ${nb} article${nb>1?'s':''} · <b>${fmt(tot)} F</b> — Payer`;
+  const mode=document.querySelector('input[name=vmode]:checked').value;
+  $('#vEsp').hidden=mode!=='especes';$('#vCred').hidden=mode!=='credit';
+  const recu=Math.round(+$('#vRecu').value)||0;
+  $('#vRendu').innerHTML=recu&&tot?(recu>=tot?`Monnaie à rendre : <b>${fmt(recu-tot)} F</b>`:`<b class="neg">Il manque ${fmt(tot-recu)} F</b>`):'';
+  $('#vValider').disabled=bloq||!panier.length;
+  const B=calcB(viewB());
+  $('#vMini').innerHTML=`Aujourd'hui : <b>${B.n} vente${B.n>1?'s':''}</b> pour <b>${fmt(B.ca)} F</b>`+(isOwner()?` · bénéfice ${fmt(B.benef)} F`:'')+
+    (j.clos?' · <b class="neg">journée clôturée</b>':'')+(aboExpire()?' · <b class="neg">abonnement expiré</b>':'');
+}
+function renderClientsSelect(){
+  const opts=viewClis().slice().sort((a,b)=>a.nom.localeCompare(b.nom)).map(c=>`<option value="${esc(c.id)}">${esc(c.nom)}${c.tel?' · '+esc(c.tel):''}</option>`).join('');
+  const v=$('#vClient').value,r=$('#rCli').value;
+  $('#vClient').innerHTML='<option value="">— Choisir le client —</option><option value="+">+ Nouveau client</option>'+opts;
+  $('#vClient').value=[...$('#vClient').options].some(o=>o.value===v)?v:'';
+  $('#rCli').innerHTML='<option value="">— Choisir le client —</option>'+opts;
+  $('#rCli').value=[...$('#rCli').options].some(o=>o.value===r)?r:'';
+  $('#vNewCli').hidden=$('#vClient').value!=='+';
+}
+function renderStock(){
+  const q=$('#sQ').value.trim().toLowerCase(),own=isOwner();
+  const act=prods.filter(p=>p.actif),bas=act.filter(p=>stockDispo(p)<=p.seuil);
+  const L=prods.filter(p=>!q||(p.nom+' '+p.categorie).toLowerCase().includes(q)).sort((a,b)=>(b.actif-a.actif)||a.nom.localeCompare(b.nom));
+  $('#sTot').innerHTML=[['Produits',act.length],['En stock bas',bas.length],
+    ...(own?[['Valeur du stock (prix d\'achat)',fmt(act.reduce((s,p)=>s+Math.max(0,stockDispo(p))*p.prix_achat,0))+' F'],['Valeur du stock (prix de vente)',fmt(act.reduce((s,p)=>s+Math.max(0,stockDispo(p))*p.prix_vente,0))+' F']]:[])]
+    .map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  $('#sList').innerHTML=`<thead><tr><th>Produit</th><th class="num">Prix de vente</th>${own?'<th class="num">Prix d\'achat</th>':''}<th class="num">Stock</th>${own?'<th>Actions</th>':''}</tr></thead><tbody>`+
+    L.map(p=>{const s=stockDispo(p),b=p.actif&&s<=p.seuil;return `<tr${p.actif?'':' style="opacity:.55"'}><td><b>${esc(p.nom)}</b>${p.categorie?` <span class="mut">· ${esc(p.categorie)}</span>`:''}${p.actif?'':' <span class="st c">désactivé</span>'}</td><td class="num">${fmt(p.prix_vente)}</td>${own?`<td class="num">${fmt(p.prix_achat)}</td>`:''}<td class="num${b?' neg':''}"><b>${s}</b>${b?' <span class="st c">bas</span>':''}</td>${own?`<td><div class="actions" style="margin:0"><button class="sm pEdit" data-id="${esc(p.id)}">Modifier</button><button class="sm pAct" data-id="${esc(p.id)}">${p.actif?'Désactiver':'Réactiver'}</button></div></td>`:''}</tr>`}).join('')+'</tbody>';
+  $('#sVide').hidden=prods.length>0;
+  const e=$('#eProd').value;
+  $('#eProd').innerHTML='<option value="">— Choisir le produit —</option>'+act.map(p=>`<option value="${esc(p.id)}">${esc(p.nom)} (stock ${stockDispo(p)})</option>`).join('');
+  $('#eProd').value=[...$('#eProd').options].some(o=>o.value===e)?e:'';
+}
+async function loadCredits(){
+  if(!cur||!estBQ())return;const id=cur.id;
+  try{
+    const [v,r]=await Promise.all([sb.from('am_ventes').select('client_id,total,paye,t').eq('agence_id',id).eq('mode','credit').limit(20000),
+      sb.from('am_remboursements').select('client_id,montant').eq('agence_id',id).limit(20000)]);
+    if(v.error)throw v.error;if(r.error)throw r.error;if(cur?.id!==id)return;
+    credits={v:v.data||[],r:r.data||[]};
+  }catch(e){say('Chargement impossible : '+errTxt(e),1,'#msgR2')}
+  renderCredits();
+}
+function soldes(){
+  const d={},add=(id,m,t)=>{const x=d[id]||(d[id]={du:0,last:null});x.du+=m;if(t&&(!x.last||t>x.last))x.last=t};
+  const del=new Set(outbox.filter(x=>x.k==='del'&&x.t).map(x=>x.id));
+  for(const x of credits.v)add(x.client_id,(+x.total||0)-(+x.paye||0),x.t);
+  for(const x of credits.r)add(x.client_id,-(+x.montant||0),null);
+  for(const x of outbox)if(x.k==='ins'&&x.row.agence_id===cur?.id){
+    if(x.t==='am_ventes'&&x.row.mode==='credit')add(x.row.client_id,x.row.total-x.row.paye,x.row.t);
+    if(x.t==='am_remboursements')add(x.row.client_id,-x.row.montant,null)}
+  return d;
+}
+function renderCredits(){
+  const d=soldes(),L=viewClis().map(c=>({...c,...(d[c.id]||{du:0,last:null})})).filter(c=>c.du>0).sort((a,b)=>b.du-a.du);
+  $('#cTot').innerHTML=[['Total à recevoir',fmt(L.reduce((s,c)=>s+c.du,0))+' F'],['Clients qui doivent',L.length]].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  $('#cList').innerHTML=L.map(c=>`<tr><td><b>${esc(c.nom)}</b></td><td>${esc(c.tel)}</td><td class="num"><b>${fmt(c.du)} F</b></td><td>${c.last?new Date(c.last).toLocaleDateString('fr-FR'):'—'}</td><td><button class="sm cRemb" data-id="${esc(c.id)}">Rembourser</button></td></tr>`).join('');
+  $('#cVide').hidden=L.length>0;
+}
+const peutSaisir=el=>{if(viewJour().clos){say('Journée clôturée : rien ne peut être enregistré. Seul le propriétaire peut la rouvrir.',1,el);return false}
+  if(aboExpire()){say('Abonnement expiré : la saisie est bloquée.'+(isOwner()?' Renouvelez dans Mon abonnement.':' Prévenez le propriétaire.'),1,el);return false}return true};
 
 /* ================= TABLEAU DU PROPRIÉTAIRE ================= */
 let patron=null;
@@ -554,18 +844,26 @@ async function loadPatron(){
   if(!mine.length){$('#pCards').innerHTML='';return}
   const ids=mine.map(a=>a.id);
   try{
-    const [a,b]=await Promise.all([sb.from('am_operations').select('agence_id,type,op,m,com,agent_nom').in('agence_id',ids).eq('jour',date).limit(10000),
-      sb.from('am_jours').select('*').in('agence_id',ids).eq('jour',date)]);
-    if(a.error)throw a.error;if(b.error)throw b.error;
-    patron={pts:mine.map(ag=>{const j=(b.data||[]).find(x=>x.agence_id===ag.id)||{};const l=(a.data||[]).filter(o=>o.agence_id===ag.id);return{ag,j,l,r:calc(l,j,ag.operateurs)}})};
+    const [a,b,v,rb,en]=await Promise.all([sb.from('am_operations').select('agence_id,type,op,m,com,agent_nom').in('agence_id',ids).eq('jour',date).limit(10000),
+      sb.from('am_jours').select('*').in('agence_id',ids).eq('jour',date),
+      sb.from('am_ventes').select('agence_id,total,cout,mode,paye,agent_nom').in('agence_id',ids).eq('jour',date).limit(10000),
+      sb.from('am_remboursements').select('agence_id,montant,mode').in('agence_id',ids).eq('jour',date).limit(10000),
+      sb.from('am_entrees').select('agence_id,cout,de_caisse').in('agence_id',ids).eq('jour',date).limit(10000)]);
+    for(const x of [a,b,v,rb,en])if(x.error)throw x.error;
+    const de=(arr,id)=>(arr.data||[]).filter(o=>o.agence_id===id);
+    patron={pts:mine.map(ag=>{const j=(b.data||[]).find(x=>x.agence_id===ag.id)||{};const l=de(a,ag.id);
+      return{ag,j,l,r:calc(l,j,ag.momo===false?[]:ag.operateurs,{ventes:de(v,ag.id),remb:de(rb,ag.id),entrees:de(en,ag.id)})}})};
     say('',0,'#msgP');
   }catch(e){say('Chargement impossible : '+errTxt(e),1,'#msgP');return}
-  const T=patron.pts.reduce((s,p)=>({cash:s.cash+p.r.cash,com:s.com+p.r.com,n:s.n+p.r.n,clos:s.clos+(p.j.clos?1:0),ec:s.ec+(p.r.ecart??0)}),{cash:0,com:0,n:0,clos:0,ec:0});
-  $('#pTot').innerHTML=[['Espèces théoriques (tous points)',fmt(T.cash)+' FCFA'],['Commissions du jour',fmt(T.com)+' FCFA'],['Opérations',T.n],['Points clôturés',`${T.clos} / ${patron.pts.length}`],['Écart total',(T.ec>0?'+':T.ec<0?'−':'')+fmt(Math.abs(T.ec))]].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+  const T=patron.pts.reduce((s,p)=>({cash:s.cash+p.r.cash,com:s.com+p.r.com,n:s.n+p.r.n,clos:s.clos+(p.j.clos?1:0),ec:s.ec+(p.r.ecart??0),ca:s.ca+p.r.B.ca,be:s.be+p.r.B.benef}),{cash:0,com:0,n:0,clos:0,ec:0,ca:0,be:0});
+  const aMM=patron.pts.some(p=>p.ag.momo!==false),aBQ=patron.pts.some(p=>p.ag.boutique);
+  $('#pTot').innerHTML=[['Espèces théoriques (tous points)',fmt(T.cash)+' FCFA'],...(aMM?[['Commissions du jour',fmt(T.com)+' FCFA'],['Opérations',T.n]]:[]),
+    ...(aBQ?[['Ventes boutique',fmt(T.ca)+' FCFA'],['Bénéfice boutique',fmt(T.be)+' FCFA']]:[]),['Points clôturés',`${T.clos} / ${patron.pts.length}`],['Écart total',(T.ec>0?'+':T.ec<0?'−':'')+fmt(Math.abs(T.ec))]].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
   $('#pCards').innerHTML=patron.pts.map(p=>{const e=p.r.ecart;return `<div class="card"><h3>${esc(p.ag.nom)}</h3>
     <span><span class="st ${p.j.clos?'c':'o'}">${p.j.clos?'Clôturée':'Ouverte'}</span></span>
     <span class="mut">Espèces théoriques</span><span class="c">${fmt(p.r.cash)} <small style="font-size:14px">FCFA</small></span>
-    <span>Commissions <b>${fmt(p.r.com)}</b> · ${p.r.n} opération${p.r.n>1?'s':''}</span>
+    ${p.ag.momo!==false?`<span>Commissions <b>${fmt(p.r.com)}</b> · ${p.r.n} opération${p.r.n>1?'s':''}</span>`:''}
+    ${p.ag.boutique?`<span>Ventes <b>${fmt(p.r.B.ca)}</b> · bénéfice <b>${fmt(p.r.B.benef)}</b> · ${p.r.B.n} vente${p.r.B.n>1?'s':''}</span>`:''}
     <span>Écart : <b class="${e<0?'neg':''}">${e==null?'non compté':(e>0?'+':e<0?'−':'')+fmt(Math.abs(e))}</b></span>
     <button class="pri sm open" data-id="${esc(p.ag.id)}">Ouvrir la caisse</button></div>`}).join('');
 }
@@ -574,6 +872,7 @@ async function loadPatron(){
 async function loadAgents(){
   $('#rNom').textContent=cur?.nom||'';
   $('#sNom').value=cur?.nom||'';$('#sOps').value=(cur?.operateurs||[]).join('\n');$('#sWa').value=cur?.whatsapp||'';
+  $('#sMomo').checked=estMM();$('#sBout').checked=estBQ();
   const {data,error}=await sb.from('am_membres').select('user_id,nom,identifiant,role,actif').eq('agence_id',cur.id).order('created_at');
   if(error){say(errTxt(error),1,'#msgA');return}
   $('#agList').innerHTML=(data||[]).map(a=>a.role==='proprietaire'?`<tr><td>${esc(a.nom)}</td><td>—</td><td>Propriétaire</td><td></td></tr>`:
@@ -592,6 +891,8 @@ async function callComptes(body){
 function sheet(aoa,w){const ws=XLSX.utils.aoa_to_sheet(aoa);for(const k in ws)if(k[0]!=='!'&&typeof ws[k].v==='number')ws[k].z='#,##0';ws['!cols']=w.map(x=>({wch:x}));return ws}
 const opRows=list=>[['Date','Heure','Type','Opérateur','Montant','Sens caisse','Commission','Client','Agent','Note'],...[...list].sort((a,b)=>new Date(a.t)-new Date(b.t)).map(o=>{const t=TYPES[o.type]||{};return[o.jour,new Date(o.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),t.l||o.type,t.f?o.op:'',+o.m||0,t.c>0?'Entrée':'Sortie',+o.com||0,o.tel||'',o.agent_nom||'',o.note||'']})];
 const perRows=r=>[['Opérateur','Opérations','Espèces reçues','Espèces versées','Commissions','Float ouverture','Float fin'],...Object.entries(r.per).map(([n,p])=>[n,p.n,p.in,p.out,p.com,p.ouv,p.fin])];
+const venteRows=list=>{const cli=id=>viewClis().find(c=>c.id===id)?.nom||'';return[['Date','Heure','Produits','Total','Coût','Bénéfice','Paiement','Payé en espèces','Client','Vendeur'],
+  ...[...list].sort((a,b)=>new Date(a.t)-new Date(b.t)).map(v=>[v.jour,new Date(v.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),(v.lignes||[]).map(l=>l.q+'× '+(l.n||'')).join(', '),+v.total||0,+v.cout||0,(+v.total||0)-(+v.cout||0),(MODES[v.mode]||[v.mode])[0],+v.paye||0,cli(v.client_id),v.agent_nom||''])]};
 const agRows=r=>[['Agent','Opérations','Espèces reçues','Espèces versées','Commissions'],...Object.entries(r.ag).map(([n,a])=>[n,a.n,a.in,a.out,a.com])];
 function saveWb(wb,name,el){
   const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
@@ -606,8 +907,9 @@ function bilanText(ag,r,j){
    `Statut : ${j.clos?'clôturée':'ouverte'}\nOpérations : ${r.n}\n`+
    `Espèces : ouverture ${fmt(r.ouv.cash)} / entrées ${fmt(r.cin)} / sorties ${fmt(r.cout)}\n`+
    `Espèces théoriques : ${fmt(r.cash)} FCFA\nEspèces comptées : ${r.compte==null?'non saisi':fmt(r.compte)+' FCFA'}\n`+
-   `Écart : ${e==null?'—':(e>0?'+':e<0?'-':'')+fmt(Math.abs(e))+' FCFA'}\nCommissions : ${fmt(r.com)} FCFA\n`+
-   `Float fin : ${Object.entries(r.per).map(([n,p])=>n+' '+fmt(p.fin)).join(' · ')}`;
+   `Écart : ${e==null?'—':(e>0?'+':e<0?'-':'')+fmt(Math.abs(e))+' FCFA'}`+
+   (ag.momo!==false?`\nCommissions : ${fmt(r.com)} FCFA\nFloat fin : ${Object.entries(r.per).map(([n,p])=>n+' '+fmt(p.fin)).join(' · ')}`:'')+
+   (ag.boutique?`\nBoutique : ${r.B.n} vente${r.B.n>1?'s':''} pour ${fmt(r.B.ca)} FCFA · bénéfice ${fmt(r.B.benef)} FCFA · à crédit ${fmt(r.B.cred)} FCFA`:'');
 }
 function openWa(num,text,el){
   const n=String(num||'').replace(/\D/g,'');
@@ -617,8 +919,8 @@ function openWa(num,text,el){
 }
 
 /* ================= ABONNEMENT ================= */
-const tarif=n=>n*(n>=ABO.seuilReseau?ABO.prixReseau:ABO.prix);
-const prixPour=(n,mois)=>tarif(Math.max(1,n))*(mois>=12?mois-2:mois); // paiement annuel : 2 mois offerts
+const tarifAbo=a=>+a?.tarif||(+a?.points||1)*5000; // tarif mensuel venu du serveur
+const prixPour=(t,mois)=>t*(mois>=12?mois-2:mois); // paiement annuel : 2 mois offerts
 const joursEntre=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR');
 const aboExpire=()=>!!abo&&iso(new Date())>abo.fin;
@@ -643,11 +945,11 @@ async function loadAboPage(){
   if(!abo){box.innerHTML='<p class="mut">Statut indisponible : vérifiez la connexion.</p>';$('#aboPay').innerHTML='';$('#aboBtns').innerHTML='';return}
   const n=joursEntre(iso(new Date()),abo.fin),pts=+abo.points||1;
   box.innerHTML=[['Formule',abo.formule==='essai'?'Essai gratuit':'Pro'],['Statut',n<0?'Expiré':'Actif'],['Valable jusqu\'au',dateFr(abo.fin)],
-    ['Jours restants',Math.max(0,n)],['Points de vente',pts],['Tarif mensuel',fmt(tarif(pts))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('');
-  $('#aboPay').innerHTML=`<p>Tarif : ${fmt(ABO.prix)} FCFA par point et par mois, ${fmt(ABO.prixReseau)} FCFA par point à partir de ${ABO.seuilReseau} points. Paiement pour un an : 2 mois offerts.</p>`+
+    ['Jours restants',Math.max(0,n)],['Points de vente',pts],['Tarif mensuel',fmt(tarifAbo(abo))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('');
+  $('#aboPay').innerHTML=`<p>Tarifs : ${esc(ABO.texte)} Paiement pour un an : 2 mois offerts.</p>`+
     (ABO.payerNum?`<p><b>Pour payer :</b> ${esc(ABO.payerNum)}. Touchez ensuite la durée choisie pour envoyer la confirmation par WhatsApp : votre abonnement est prolongé dès réception du paiement.</p>`
                  :'<p>Pour renouveler, touchez la durée choisie et envoyez le message à votre fournisseur de l\'appli.</p>');
-  $('#aboBtns').innerHTML=[1,3,12].map(m=>`<button class="wa paye" data-m="${m}">${m===12?'1 an':m+' mois'} : ${fmt(prixPour(pts,m))} FCFA</button>`).join('');
+  $('#aboBtns').innerHTML=[1,3,12].map(m=>`<button class="wa paye" data-m="${m}">${m===12?'1 an':m+' mois'} : ${fmt(prixPour(tarifAbo(abo),m))} FCFA</button>`).join('');
   const {data,error}=await sb.from('am_paiements').select('created_at,mois,montant,moyen,nouvelle_fin').order('created_at',{ascending:false}).limit(24);
   if(error){$('#aboHist').innerHTML='';return say(errTxt(error),1,'#msgAbo')}
   $('#aboHist').innerHTML=data.length?'<thead><tr><th>Date</th><th>Durée</th><th class="num">Montant</th><th>Moyen</th><th>Valable jusqu\'au</th></tr></thead><tbody>'+
@@ -663,15 +965,18 @@ async function checkAdmin(){
 }
 async function loadAdmin(){
   say('Chargement…',0,'#msgAdm');
-  const {data,error}=await sb.rpc('am_admin_clients');
-  if(error)return say(errTxt(error),1,'#msgAdm');
-  clients=data||[];say('',0,'#msgAdm');renderAdmin();
+  const [a,t]=await Promise.all([sb.rpc('am_admin_clients'),sb.rpc('am_admin_tarifs')]);
+  if(a.error||t.error)return say(errTxt(a.error||t.error),1,'#msgAdm');
+  const T=new Map((t.data||[]).map(x=>[x.proprietaire,x]));
+  clients=(a.data||[]).map(c=>{const x=T.get(c.proprietaire)||{};const dv=x.derniere_vente;
+    return{...c,tarif:x.tarif??0,derniere_op:dv&&(!c.derniere_op||dv>c.derniere_op)?dv:c.derniere_op}});
+  say('',0,'#msgAdm');renderAdmin();
 }
 function renderAdmin(){
   const today=iso(new Date()),q=$('#admQ').value.trim().toLowerCase();
   const act=clients.filter(c=>c.fin>=today),pay=act.filter(c=>c.formule==='pro');
   $('#admTot').innerHTML=[['Clients',clients.length],['Abonnements actifs',act.length],['Dont payants',pay.length],['Points actifs',act.reduce((s,c)=>s+ +c.points,0)],
-    ['Revenu mensuel estimé',fmt(pay.reduce((s,c)=>s+tarif(+c.points),0))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+    ['Revenu mensuel estimé',fmt(pay.reduce((s,c)=>s+(+c.tarif||0),0))+' FCFA']].map(([k,v])=>`<div><small>${k}</small><strong>${v}</strong></div>`).join('');
   const L=clients.filter(c=>!q||(c.nom+' '+c.email).toLowerCase().includes(q));
   $('#admEmpty').hidden=L.length>0;
   $('#admList').innerHTML=L.map(c=>{const n=joursEntre(today,c.fin),exp=n<0,pts=Math.max(1,+c.points);
@@ -680,17 +985,19 @@ function renderAdmin(){
       <td><span class="st ${exp?'c':'o'}">${exp?'Expiré':c.formule==='essai'?'Essai':'Pro'}</span> ${dateFr(c.fin)}<br><span class="mut">${exp?'depuis '+(-n)+' j':'reste '+n+' j'}</span></td>
       <td>${c.derniere_op?new Date(c.derniere_op).toLocaleDateString('fr-FR'):'—'}</td>
       <td class="num">${fmt(c.total_paye)}</td>
-      <td><div class="actions" style="margin:0" data-p="${esc(c.proprietaire)}" data-n="${pts}">
+      <td><div class="actions" style="margin:0" data-p="${esc(c.proprietaire)}" data-n="${+c.tarif||0}">
         <select class="aM" style="width:auto" aria-label="Durée">${[1,3,6,12].map(m=>`<option value="${m}">${m} mois</option>`).join('')}</select>
         <select class="aMo" style="width:auto" aria-label="Moyen de paiement"><option>Wave</option><option>Orange Money</option><option>MTN MoMo</option><option>Moov Money</option><option>Espèces</option><option>Offert</option></select>
-        <input class="aMt" type="number" min="0" step="1" inputmode="numeric" value="${prixPour(pts,1)}" style="max-width:120px" aria-label="Montant reçu (FCFA)">
+        <input class="aMt" type="number" min="0" step="1" inputmode="numeric" value="${prixPour(+c.tarif||0,1)}" style="max-width:120px" aria-label="Montant reçu (FCFA)">
         <input class="aRef" placeholder="Référence" maxlength="80" style="max-width:150px" aria-label="Référence du paiement">
         <button class="pri sm aGo">Prolonger</button></div></td></tr>`}).join('');
 }
 
 /* ================= NAVIGATION ================= */
-const VUES={'caisse:saisie':'Saisie d\'une opération','caisse:caisse':'Caisse et float','caisse:journal':'Journal du jour','caisse:bilan':'Bilan et clôture',
+const VUES={'caisse:saisie':'Opération Mobile Money','caisse:caisse':'Caisse','caisse:journal':'Journal du jour','caisse:bilan':'Bilan et clôture',
+  vente:'Vente',stock:'Stock et produits',credits:'Crédits clients',
   patron:'Tableau du propriétaire',reglages:'Agents et réglages',abo:'Mon abonnement',admin:'Administration'};
+const accueil=()=>estMM()?'caisse':'vente'; // page de départ selon l'activité du point
 function marquer(k){$('#vueTxt').textContent=VUES[k]||'';document.querySelectorAll('#menu [data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===k))}
 function menu(ouvert){
   $('#menu').classList.toggle('open',ouvert);$('#menuFond').hidden=!ouvert;$('#menuBtn').setAttribute('aria-expanded',ouvert);
@@ -705,14 +1012,18 @@ function aller(k){
 }
 function show(v){
   vue=v;marquer(v==='caisse'?'caisse:'+$('#tCaisse').dataset.s:v);
-  $('#tCaisse').hidden=v!=='caisse';$('#tPatron').hidden=v!=='patron';$('#tReglages').hidden=v!=='reglages';$('#tAdmin').hidden=v!=='admin';
+  for(const [id,k] of [['#tCaisse','caisse'],['#tVente','vente'],['#tStock','stock'],['#tCredits','credits'],['#tPatron','patron'],['#tReglages','reglages'],['#tAdmin','admin']])$(id).hidden=v!==k;
   if(v==='patron')loadPatron();if(v==='reglages'){loadAgents();loadAboPage()}if(v==='admin')loadAdmin();
+  if(v==='vente')renderVente();if(v==='stock')renderStock();if(v==='credits'){renderCredits();loadCredits()}
 }
 function choose(id){
   const m=membres.find(x=>x.agence_id===id)||membres[0];
   cur=m?m.am_agences:null;role=m?m.role:'agent';LS.set('am-cur',cur?.id);
-  ops=[];jour={};abo=null;subscribe();load();loadAbo();
-  if(!isOwner()&&(vue==='patron'||vue==='reglages'))show('caisse');else if(vue==='reglages'){loadAgents();loadAboPage()}
+  ops=[];jour={};abo=null;bq=bq0();prods=[];clis=[];panier=[];credits={v:[],r:[]};subscribe();load();loadAbo();
+  // si la page affichée n'existe pas pour ce point (activité ou droits), on revient à l'accueil
+  const bout=['vente','stock','credits'].includes(vue),saisieMM=vue==='caisse'&&$('#tCaisse').dataset.s==='saisie';
+  if((!isOwner()&&(vue==='patron'||vue==='reglages'))||(bout&&!estBQ())||(saisieMM&&!estMM())){$('#tCaisse').dataset.s=estMM()?'saisie':'caisse';show(accueil())}
+  else if(vue==='reglages'){loadAgents();loadAboPage()}
 }
 const go=d=>{if(!d)return;date=d;say('');say('',0,'#msg2');load();if(vue==='patron')loadPatron()};
 
@@ -722,7 +1033,7 @@ async function startApp(user){
   try{await loadMembres()}catch(e){membres=LS.get('am-membres:'+me.id,[]);if(!membres.length)say('Connexion au serveur impossible : '+errTxt(e),1)}
   const mm=membres.find(x=>x.role==='proprietaire')||membres[0];if(mm)me.nom=mm.nom||me.nom;
   if(!membres.length){$('#nomAg').textContent='Aucun point';say('Ce compte n\'est rattaché à aucun point actif. Contactez le propriétaire.',1);renderHeader();return}
-  choose(LS.get('am-cur',null)||membres[0].agence_id);show('caisse');flush();
+  choose(LS.get('am-cur',null)||membres[0].agence_id);if(!estMM())$('#tCaisse').dataset.s='caisse';show(accueil());flush();
 }
 function showLogin(){if(chan){sb.removeChannel(chan);chan=null}$('#menu').classList.remove('open');$('#menuFond').hidden=true;admin=false;abo=null;clients=[];document.querySelectorAll('.adm').forEach(b=>b.hidden=true);$('#vApp').hidden=true;$('#vLogin').hidden=false}
 
@@ -740,7 +1051,13 @@ $('#fUp').addEventListener('submit',async e=>{e.preventDefault();
   say('Création du compte…',0,'#mLogin');
   try{await callComptes({action:'inscription',nom:$('#upNom').value,agence:$('#upAg').value,email,motdepasse:pw})}catch(err){return say(errTxt(err),1,'#mLogin')}
   const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
-  if(error)return say(errTxt(error),1,'#mLogin');startApp(data.user)});
+  if(error)return say(errTxt(error),1,'#mLogin');
+  const act=$('#upAct').value;
+  if(act!=='momo'){ // la fonction d'inscription crée un point Mobile Money : on règle l'activité choisie
+    const {data:mm}=await sb.from('am_membres').select('agence_id').eq('user_id',data.user.id).eq('role','proprietaire');
+    for(const m of mm||[])await sb.from('am_agences').update(metiers(act)).eq('id',m.agence_id);
+  }
+  startApp(data.user)});
 $('#logout').onclick=async()=>{if(outbox.length&&!navigator.onLine)return say('Des opérations attendent la connexion : reconnectez-vous à Internet avant de vous déconnecter.',1);await sb.auth.signOut();LS.set('am-cur',null);showLogin()};
 $('#menuBtn').onclick=()=>menu(true);$('#menuClose').onclick=()=>menu(false);$('#menuFond').onclick=()=>menu(false);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#menu').classList.contains('open'))menu(false)});
@@ -752,7 +1069,7 @@ $('#form').addEventListener('submit',e=>{e.preventDefault();if(viewJour().clos)r
   if(aboExpire())return say('Abonnement expiré : la saisie est bloquée.'+(isOwner()?' Renouvelez dans Agents et réglages.':' Prévenez le propriétaire.'),1);
   const type=document.querySelector('input[name=type]:checked').value,t=TYPES[type],m=Math.round(+$('#m').value);
   if(!(m>0))return say('Saisissez un montant supérieur à 0.',1);
-  const r=calc(viewOps(),viewJour());let warn='';const op=t.f?$('#op').value:'';
+  const r=calcCur();let warn='';const op=t.f?$('#op').value:'';
   if(t.c<0&&r.cash<m)warn=' Attention : espèces insuffisantes.';if(t.f<0&&(r.per[op]?.fin??0)<m)warn=' Attention : float '+op+' insuffisant.';
   queue({k:'ins',row:{id:uuid(),agence_id:cur.id,jour:date,t:new Date().toISOString(),type,op,m,com:Math.round(+$('#com').value)||0,tel:$('#tel').value.trim(),note:$('#note').value.trim(),agent_id:me.id,agent_nom:me.nom}});
   say(t.l+' de '+fmt(m)+' FCFA enregistré'+(navigator.onLine?'.':' (sera envoyé au retour de la connexion).')+warn,!!warn);
@@ -769,17 +1086,20 @@ $('#reprise').onclick=async()=>{const {data,error}=await sb.from('am_jours').sel
   queue({k:'jour',row:jourRow({ouv:data.fin})});say('Ouverture reprise de la clôture de la veille.',0,'#msg2')};
 $('#clore').onclick=()=>{const b=$('#clore');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmer la clôture';return}
   b.dataset.c='';b.textContent='Clôturer la journée';
-  const r=calc(viewOps(),viewJour()),f={};Object.entries(r.per).forEach(([n,p])=>f[n]=p.fin);
+  const r=calcCur(),f={};Object.entries(r.per).forEach(([n,p])=>f[n]=p.fin);
   queue({k:'jour',row:jourRow({clos:true,fin:{cash:r.compte??r.cash,f},clos_par:me.nom,clos_at:new Date().toISOString()})});
   say('Journée clôturée. Envoyez le bilan par WhatsApp ou exportez-le.',0,'#msg2')};
 $('#rouvrir').onclick=()=>{queue({k:'jour',row:jourRow({clos:false})});say('Journée rouverte.',0,'#msg2')};
-$('#xlsDay').onclick=()=>{const r=calc(viewOps(),viewJour()),j=viewJour(),wb=XLSX.utils.book_new();
+$('#xlsDay').onclick=()=>{const r=calcCur(),j=viewJour(),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,sheet([['Bilan de fin de journée'],['Point',cur.nom],['Date',date],['Statut',j.clos?'Clôturée':'Ouverte'],['Clôturée par',j.clos_par||''],['Édité le',new Date().toLocaleString('fr-FR')],[],
     ['Caisse espèces','FCFA'],['Ouverture',+r.ouv.cash||0],['Entrées',r.cin],['Sorties',r.cout],['Espèces théoriques',r.cash],['Espèces comptées',r.compte??''],['Écart',r.ecart??''],[],['Nombre d\'opérations',r.n],['Commissions du jour',r.com],[],...perRows(r)],[24,16,16,16,14,16,14]),'Bilan');
-  XLSX.utils.book_append_sheet(wb,sheet(opRows(viewOps()),[11,8,18,16,12,11,12,16,14,24]),'Opérations');
+  if(estMM())XLSX.utils.book_append_sheet(wb,sheet(opRows(viewOps()),[11,8,18,16,12,11,12,16,14,24]),'Opérations');
+  if(estBQ()){const B=r.B;
+    XLSX.utils.book_append_sheet(wb,sheet([['Boutique','FCFA'],['Chiffre d\'affaires',B.ca],['Bénéfice',B.benef],['Nombre de ventes',B.n],['Ventes en espèces',B.esp],['Ventes en Mobile Money',B.mob],['Vendu à crédit',B.cred],['Remboursements reçus',B.remb],['Achats payés par la caisse',B.achat]],[28,16]),'Boutique');
+    XLSX.utils.book_append_sheet(wb,sheet(venteRows(viewB().ventes),[11,8,40,12,12,12,16,12,18,14]),'Ventes')}
   XLSX.utils.book_append_sheet(wb,sheet(agRows(r),[18,12,16,16,14]),'Par agent');
   saveWb(wb,`bilan-${slug(cur.nom)}-${date}.xlsx`,'#msg2')};
-$('#waDay').onclick=()=>openWa(cur.whatsapp,bilanText(cur,calc(viewOps(),viewJour()),viewJour()),'#msg2');
+$('#waDay').onclick=()=>openWa(cur.whatsapp,bilanText(cur,calcCur(),viewJour()),'#msg2');
 $('#pCards').addEventListener('click',e=>{const b=e.target.closest('.open');if(!b)return;choose(b.dataset.id);show('caisse')});
 $('#xlsAll').onclick=()=>{if(!patron)return;const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,sheet([['Point','Statut','Opérations','Ouverture','Entrées','Sorties','Espèces théoriques','Espèces comptées','Écart','Commissions'],...patron.pts.map(p=>[p.ag.nom,p.j.clos?'Clôturée':'Ouverte',p.r.n,+p.r.ouv.cash||0,p.r.cin,p.r.cout,p.r.cash,p.r.compte??'',p.r.ecart??'',p.r.com])],[24,11,11,13,13,13,16,16,11,13]),'Tous les points');
@@ -793,6 +1113,10 @@ $('#xlsRange').onclick=async()=>{const a=$('#from').value,b=$('#to').value;if(!a
   XLSX.utils.book_append_sheet(wb,sheet(perRows(r).map(x=>x.slice(0,5)),[18,12,16,16,14]),'Par opérateur');
   XLSX.utils.book_append_sheet(wb,sheet(agRows(r),[18,12,16,16,14]),'Par agent');
   XLSX.utils.book_append_sheet(wb,sheet(opRows(list),[11,8,18,16,12,11,12,16,14,24]),'Opérations');
+  if(estBQ()){let vl=[];try{for(let i=0;;i+=1000){const {data,error}=await sb.from('am_ventes').select('*').eq('agence_id',cur.id).gte('jour',a).lte('jour',b).order('t').range(i,i+999);if(error)throw error;vl=vl.concat(data);if(data.length<1000)break}}catch(e){return say(errTxt(e),1,'#msgR')}
+    const B=calcB({ventes:vl}),parP={};for(const v of vl)for(const l of v.lignes||[]){const x=parP[l.n]||(parP[l.n]={q:0,ca:0,be:0});x.q+=l.q;x.ca+=l.q*l.pu;x.be+=l.q*(l.pu-(l.pa||0))}
+    XLSX.utils.book_append_sheet(wb,sheet([['Produit','Quantité vendue','Chiffre d\'affaires','Bénéfice'],...Object.entries(parP).sort((x,y)=>y[1].ca-x[1].ca).map(([n,x])=>[n,x.q,x.ca,x.be]),[],['Total',vl.length+' ventes',B.ca,B.benef]],[28,16,18,14]),'Ventes par produit');
+    XLSX.utils.book_append_sheet(wb,sheet(venteRows(vl),[11,8,40,12,12,12,16,12,18,14]),'Ventes')}
   saveWb(wb,`operations-${slug(cur.nom)}-${a}-au-${b}.xlsx`,'#msgR')};
 $('#fAgent').addEventListener('submit',async e=>{e.preventDefault();say('Création…',0,'#msgA');
   try{await callComptes({action:'creer_agent',agence_id:cur.id,nom:$('#aNom').value,identifiant:$('#aId').value.trim().toLowerCase(),motdepasse:$('#aPw').value});
@@ -802,18 +1126,24 @@ $('#agList').addEventListener('click',async e=>{const b=e.target.closest('button
     else if(b.classList.contains('act')){await callComptes({action:'activer',agence_id:cur.id,user_id:u,actif:b.dataset.a==='1'});say(b.dataset.a==='1'?'Agent réactivé.':'Agent désactivé : il ne peut plus se connecter.',0,'#msgA')}
     loadAgents()}catch(err){say(errTxt(err),1,'#msgA')}});
 $('#sSave').onclick=async()=>{const ops=[...new Set($('#sOps').value.split('\n').map(x=>x.trim()).filter(Boolean))];
-  if(!ops.length)return say('Indiquez au moins un opérateur.',1,'#msgS');
-  const patch={nom:$('#sNom').value.trim()||cur.nom,operateurs:ops,whatsapp:$('#sWa').value.replace(/\D/g,'')||null};
+  const momo=$('#sMomo').checked,boutique=$('#sBout').checked;
+  if(!momo&&!boutique)return say('Cochez au moins une activité : Mobile Money ou Boutique.',1,'#msgS');
+  if(momo&&!ops.length)return say('Indiquez au moins un opérateur Mobile Money.',1,'#msgS');
+  const patch={nom:$('#sNom').value.trim()||cur.nom,operateurs:ops.length?ops:cur.operateurs,whatsapp:$('#sWa').value.replace(/\D/g,'')||null,momo,boutique};
   const {error}=await sb.from('am_agences').update(patch).eq('id',cur.id);if(error)return say(errTxt(error),1,'#msgS');
-  Object.assign(cur,patch);LS.set('am-membres:'+me.id,membres);render();say('Réglages enregistrés.',0,'#msgS')};
+  const chg=patch.momo!==estMM()||patch.boutique!==estBQ();
+  Object.assign(cur,patch);LS.set('am-membres:'+me.id,membres);
+  if(chg){subscribe();load();loadAbo()}else render();
+  say('Réglages enregistrés.'+(chg?' Les activités du point ont changé : le menu est mis à jour.':''),0,'#msgS')};
+const metiers=v=>({momo:v!=='boutique',boutique:v!=='momo'});
 $('#fPoint').addEventListener('submit',async e=>{e.preventDefault();
-  const {data,error}=await sb.from('am_agences').insert({nom:$('#nPt').value.trim(),proprietaire:me.id}).select('id').single();
+  const {data,error}=await sb.from('am_agences').insert({nom:$('#nPt').value.trim(),proprietaire:me.id,...metiers($('#nAct').value)}).select('id').single();
   if(error)return say(errTxt(error),1,'#msgS');$('#nPt').value='';await loadMembres();choose(data.id);say('Point créé. Ajoutez-lui des agents ci-dessus.',0,'#msgS')});
 
 $('#aboGo').onclick=()=>aller('abo');
 $('#aboBtns').addEventListener('click',e=>{const b=e.target.closest('.paye');if(!b||!abo)return;
   const m=+b.dataset.m,pts=+abo.points||1;
-  const t=`Bonjour, je souhaite renouveler mon abonnement Agence mobile Pro.\nCompte : ${me.email||''}\nNom : ${me.nom||''}\nPoints de vente : ${pts}\nDurée : ${m===12?'1 an':m+' mois'}\nMontant : ${fmt(prixPour(pts,m))} FCFA\nRéférence du paiement : `;
+  const t=`Bonjour, je souhaite renouveler mon abonnement Agence mobile Pro.\nCompte : ${me.email||''}\nNom : ${me.nom||''}\nPoints de vente : ${pts}\nDurée : ${m===12?'1 an':m+' mois'}\nMontant : ${fmt(prixPour(tarifAbo(abo),m))} FCFA\nRéférence du paiement : `;
   const n=String(ABO.payerWa||'').replace(/\D/g,''),url=(n?`https://wa.me/${n}`:'https://wa.me/')+'?text='+encodeURIComponent(t);
   const w=window.open(url,'_blank');if(!w)location.href=url;
   say('WhatsApp ouvert : ajoutez la référence de votre paiement puis envoyez le message.',0,'#msgAbo')});
@@ -828,6 +1158,82 @@ $('#admList').addEventListener('click',async e=>{const b=e.target.closest('.aGo'
   b.disabled=false;b.dataset.c='';b.textContent='Prolonger';
   if(error)return say(errTxt(error),1,'#msgAdm');
   await loadAdmin();say('Abonnement prolongé jusqu\'au '+dateFr(data)+'.',0,'#msgAdm')});
+
+/* ---------- Boutique : vente ---------- */
+$('#vQ').addEventListener('input',renderVente);
+$('#vProds').addEventListener('click',e=>{const b=e.target.closest('.pbtn');if(!b)return;const p=prods.find(x=>x.id===b.dataset.p);if(!p)return;
+  const l=panier.find(x=>x.p===p.id);if(l)l.q++;else panier.push({p:p.id,n:p.nom,pu:+p.prix_vente,pa:+p.prix_achat,q:1});
+  say('',0,'#msgV');renderPanier()});
+$('#vPanier').addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b)return;const l=panier[+b.dataset.i];if(!l)return;
+  l.q+=+b.dataset.d;if(l.q<=0)panier.splice(+b.dataset.i,1);renderPanier()});
+$('#vBar').onclick=()=>$('.panier').scrollIntoView({behavior:'smooth',block:'start'});
+$('#vMode').addEventListener('change',renderPanier);$('#vRecu').addEventListener('input',renderPanier);
+$('#vClient').addEventListener('change',()=>{$('#vNewCli').hidden=$('#vClient').value!=='+';if(!$('#vNewCli').hidden)$('#vCliNom').focus()});
+$('#vVider').onclick=()=>{panier=[];$('#vRecu').value='';say('',0,'#msgV');renderPanier()};
+$('#vValider').onclick=()=>{
+  if(!panier.length||!peutSaisir('#msgV'))return;
+  const mode=document.querySelector('input[name=vmode]:checked').value,tot=panier.reduce((s,l)=>s+l.q*l.pu,0);
+  let client_id=null,paye=mode==='especes'?tot:0,nomCli='';
+  if(mode==='credit'){
+    let c=$('#vClient').value;if(!c)return say('Choisissez le client qui achète à crédit (ou « Nouveau client »).',1,'#msgV');
+    if(c==='+'){nomCli=$('#vCliNom').value.trim();if(!nomCli)return say('Indiquez le nom du nouveau client.',1,'#msgV');
+      c=uuid();queue({k:'ins',t:'am_clients',row:{id:c,agence_id:cur.id,nom:nomCli,tel:$('#vCliTel').value.trim()}})}
+    else nomCli=viewClis().find(x=>x.id===c)?.nom||'';
+    client_id=c;paye=Math.min(tot,Math.max(0,Math.round(+$('#vAcompte').value)||0));
+  }
+  const manque=panier.filter(l=>{const p=prods.find(x=>x.id===l.p);return p&&stockDispo(p)<l.q}).map(l=>l.n);
+  const recu=Math.round(+$('#vRecu').value)||0;
+  queue({k:'ins',t:'am_ventes',row:{id:uuid(),agence_id:cur.id,jour:date,t:new Date().toISOString(),lignes:panier.map(l=>({p:l.p,q:l.q,pu:l.pu,n:l.n,pa:l.pa})),
+    total:tot,cout:panier.reduce((s,l)=>s+l.q*l.pa,0),mode,paye,client_id,note:'',agent_id:me.id,agent_nom:me.nom}});
+  panier=[];['#vRecu','#vAcompte','#vCliNom','#vCliTel'].forEach(s=>$(s).value='');$('#vClient').value='';
+  document.querySelector('input[name=vmode][value=especes]').checked=true;
+  say(`Vente de ${fmt(tot)} F enregistrée`+(mode==='credit'?` à crédit pour ${nomCli} (reste à payer ${fmt(tot-paye)} F)`:'')+(mode==='especes'&&recu>tot?`. Monnaie à rendre : ${fmt(recu-tot)} F`:'')+
+    (navigator.onLine?'.':' (sera envoyée au retour de la connexion).')+(manque.length?' Attention, stock insuffisant pour : '+manque.join(', ')+'.':''),!!manque.length,'#msgV');
+  renderBoutique()};
+/* ---------- Boutique : journal (suppression) ---------- */
+$('#bJournal').addEventListener('click',e=>{const b=e.target.closest('.bdel');if(!b)return;
+  if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmer';b.classList.add('red');return}
+  const id=b.dataset.id,t=b.dataset.t,i=outbox.findIndex(x=>x.k==='ins'&&x.t===t&&x.row.id===id);
+  if(i>=0){outbox.splice(i,1);LS.set('am-outbox',outbox);render()}else queue({k:'del',t,id});
+  say(t==='am_ventes'?'Vente supprimée : le stock est remis.':'Supprimé.',0,'#msg2')});
+/* ---------- Boutique : stock et produits ---------- */
+$('#sQ').addEventListener('input',renderStock);
+$('#fEntree').addEventListener('submit',e=>{e.preventDefault();if(!peutSaisir('#msgE'))return;
+  const produit_id=$('#eProd').value,q=Math.round(+$('#eQ').value);
+  if(!produit_id)return say('Choisissez le produit.',1,'#msgE');if(!q)return say('Indiquez la quantité (négative pour une perte).',1,'#msgE');
+  const cout=Math.max(0,Math.round(+$('#eCout').value)||0),de_caisse=$('#eCaisse').checked;
+  queue({k:'ins',t:'am_entrees',row:{id:uuid(),agence_id:cur.id,jour:date,t:new Date().toISOString(),produit_id,q,cout,de_caisse,note:$('#eNote').value.trim(),agent_id:me.id,agent_nom:me.nom}});
+  const p=prods.find(x=>x.id===produit_id);
+  say(`${q>0?'Entrée':'Sortie'} de ${Math.abs(q)} ${p?.nom||''} enregistrée.`+(de_caisse&&cout?` ${fmt(cout)} F retirés de la caisse.`:''),0,'#msgE');
+  $('#fEntree').reset();renderStock()});
+function formProduit(p){
+  $('#pId').value=p?.id||'';$('#pNom').value=p?.nom||'';$('#pCat').value=p?.categorie||'';$('#pPv').value=p?p.prix_vente:'';$('#pPa').value=p?p.prix_achat:'';
+  $('#pStock').value='';$('#pSeuil').value=p?p.seuil:'';$('#pStockF').hidden=!!p;$('#pAnnul').hidden=!p;
+  $('#pTitre').textContent=p?'Modifier le produit':'Ajouter un produit';$('#pBtn').textContent=p?'Enregistrer':'Ajouter le produit';
+}
+$('#pAnnul').onclick=()=>{formProduit(null);say('',0,'#msgP2')};
+$('#fProduit').addEventListener('submit',async e=>{e.preventDefault();
+  const id=$('#pId').value,row={nom:$('#pNom').value.trim(),categorie:$('#pCat').value.trim(),prix_vente:Math.round(+$('#pPv').value),
+    prix_achat:Math.max(0,Math.round(+$('#pPa').value)||0),seuil:Math.max(0,Math.round(+$('#pSeuil').value)||0)};
+  if(!row.nom||!(row.prix_vente>=0))return say('Indiquez au moins le nom et le prix de vente.',1,'#msgP2');
+  const {error}=id?await sb.from('am_produits').update(row).eq('id',id)
+    :await sb.from('am_produits').insert({...row,agence_id:cur.id,stock:Math.round(+$('#pStock').value)||0});
+  if(error)return say(errTxt(error),1,'#msgP2');
+  say(id?'Produit modifié.':`« ${row.nom} » ajouté.`,0,'#msgP2');formProduit(null);loadCatalogue()});
+$('#sList').addEventListener('click',async e=>{const b=e.target.closest('button[data-id]');if(!b)return;const p=prods.find(x=>x.id===b.dataset.id);if(!p)return;
+  if(b.classList.contains('pEdit')){formProduit(p);$('#fProduit').scrollIntoView({behavior:'smooth'});return}
+  if(b.classList.contains('pAct')){const {error}=await sb.from('am_produits').update({actif:!p.actif}).eq('id',p.id);
+    if(error)return say(errTxt(error),1,'#msgSt');say(p.actif?`« ${p.nom} » désactivé : il n'apparaît plus à la vente.`:`« ${p.nom} » réactivé.`,0,'#msgSt');loadCatalogue()}});
+/* ---------- Boutique : crédits ---------- */
+$('#cList').addEventListener('click',e=>{const b=e.target.closest('.cRemb');if(!b)return;$('#rCli').value=b.dataset.id;$('#rMt').focus()});
+$('#fRemb').addEventListener('submit',e=>{e.preventDefault();if(!peutSaisir('#msgR2'))return;
+  const client_id=$('#rCli').value,montant=Math.round(+$('#rMt').value);
+  if(!client_id)return say('Choisissez le client.',1,'#msgR2');if(!(montant>0))return say('Indiquez le montant remboursé.',1,'#msgR2');
+  const du=soldes()[client_id]?.du||0;
+  queue({k:'ins',t:'am_remboursements',row:{id:uuid(),agence_id:cur.id,jour:date,t:new Date().toISOString(),client_id,montant,mode:$('#rMode').value,note:'',agent_id:me.id,agent_nom:me.nom}});
+  const nom=viewClis().find(c=>c.id===client_id)?.nom||'';
+  say(`Remboursement de ${fmt(montant)} F enregistré pour ${nom}. Reste à payer : ${fmt(Math.max(0,du-montant))} F.`+(montant>du?' Attention : le montant dépasse ce qu\'il devait.':''),montant>du,'#msgR2');
+  $('#fRemb').reset();renderCredits()});
 
 /* ================= DÉMARRAGE ================= */
 renderTypes();
