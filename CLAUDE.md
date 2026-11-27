@@ -28,9 +28,17 @@ Appli de gestion pour points Mobile Money (Côte d'Ivoire / Afrique francophone)
 - Côté appli : constante `ABO` (tarifs, `payerWa`, `payerNum`), bandeau d'alerte (rappel 5 jours avant), section « Mon abonnement » dans les réglages, onglet « Administration » visible des admins.
 - Ajouter un admin : `insert into am_admins(user_id) select id from auth.users where email = '...'`.
 
+## Rapport admin WhatsApp (migration am_rapport_whatsapp)
+- Tâche pg_cron `am-rapport-matin`, `0 7 * * *` (7 h Abidjan = UTC), qui appelle `am_priv.am_envoyer_rapport()`. Celle-ci envoie par pg_net un GET vers TextMeBot (`api.textmebot.com/send.php`).
+- Texte : `am_priv.am_rapport_texte(date)`, aperçu sans envoi avec `select am_priv.am_rapport_texte(current_date)`. Contenu : suivi des clients seulement (jamais leurs caisses), plus un bilan de la semaine le lundi.
+- Secrets Vault : `textmebot_apikey`, `rapport_destinataire` (+22595955803, format 8 chiffres exigé par TextMeBot).
+- Réponses d'envoi : table `net._http_response`.
+- TextMeBot est payant après l'essai (offre « 1 recipient » à 1 $/mois).
+- Une tâche cloud Claude (trig_01VJE2RCdtPz5WwJX236L8tS) a été essayée puis désactivée : le proxy cloud bloque api.textmebot.com.
+
 ## Fonctionnement hors ligne
 File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s.
 
 ## Autres fichiers
-- `Guide-utilisation-Pro.pdf` (mode d'emploi), `Fiche-presentation.pdf` (fiche commerciale), `LISEZ-MOI.txt`.
+- `Guide-utilisateurs.pdf` (mode d'emploi pour les clients : propriétaires et agents), `Fiche-presentation.pdf` (fiche commerciale), `LISEZ-MOI.txt`.
 - Offre gratuite Supabase : 2 projets actifs max, pause après 7 jours d'inactivité.
