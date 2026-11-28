@@ -2,7 +2,7 @@
 // Les appels au serveur (Supabase) ne passent jamais par le cache.
 // Les fichiers de l'appli sont toujours redemandés au site (cache HTTP contourné),
 // pour qu'une mise à jour s'affiche dès la réouverture.
-const CACHE = 'agence-pro-v9';
+const CACHE = 'agence-pro-v10';
 const FILES = ['./', './index.html', './supabase.js', './xlsx.full.min.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

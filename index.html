@@ -219,9 +219,10 @@ body.fourn .cli,body.fourn .dnav,body.fourn #aboBand,body:not(.fourn) .adm,body.
   <header class="band"><div class="wrap"><div><h1>Agence mobile Pro</h1><p class="sub">Bienvenue ! Choisissez votre mot de passe</p></div></div></header>
   <div class="band"><div class="login">
     <p>Votre compte a été préparé par votre fournisseur avec un <b>mot de passe provisoire</b>. Choisissez maintenant votre propre mot de passe : vous serez <b>le seul à le connaître</b>.</p>
-    <form id="fPw" autocomplete="on">
+    <form id="fPw" autocomplete="on" novalidate>
       <div class="f"><label for="pw1">Nouveau mot de passe (8 caractères minimum)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required></div>
       <div class="f"><label for="pw2">Retapez le mot de passe</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required></div>
+      <div class="f"><label style="display:flex;gap:8px;align-items:center;color:inherit;font-size:16px"><input type="checkbox" id="pwVoir" style="width:auto;min-height:0"> Afficher le mot de passe</label></div>
       <button class="pri" style="width:100%">Enregistrer mon mot de passe</button>
     </form>
     <p class="msg" id="mPw" role="status"></p>
@@ -1030,13 +1031,15 @@ $('#aboBtns').addEventListener('click',e=>{const b=e.target.closest('.paye');if(
   say('WhatsApp ouvert : ajoutez la référence de votre paiement puis envoyez le message.',0,'#msgAbo')});
 
 /* ---------- Première connexion : choix du mot de passe ---------- */
+$('#pwVoir').onchange=e=>{for(const i of ['#pw1','#pw2'])$(i).type=e.target.checked?'text':'password'};
 $('#fPw').addEventListener('submit',async e=>{e.preventDefault();
-  const p1=$('#pw1').value,p2=$('#pw2').value;
+  const p1=$('#pw1').value.trim(),p2=$('#pw2').value.trim();
+  if(!p1)return say('Tapez votre nouveau mot de passe.',1,'#mPw');
   if(p1.length<8)return say('Le mot de passe doit avoir au moins 8 caractères.',1,'#mPw');
   if(p1!==p2)return say('Les deux mots de passe ne sont pas identiques.',1,'#mPw');
   say('Enregistrement…',0,'#mPw');
   const {data,error}=await sb.auth.updateUser({password:p1,data:{doit_changer:false}});
-  if(error)return say(/same|different/i.test(error.message)?'Choisissez un mot de passe différent du mot de passe provisoire.':errTxt(error),1,'#mPw');
+  if(error){const m=error.message||'';return say(/same|different/i.test(m)?'Choisissez un mot de passe différent du mot de passe provisoire.':/weak|least|character|short/i.test(m)?'Mot de passe trop simple : utilisez au moins 8 caractères, avec des lettres et des chiffres.':/session|jwt|expired|missing/i.test(m)?'La connexion a expiré : reconnectez-vous avec le mot de passe provisoire.':'Enregistrement impossible : '+errTxt(error),1,'#mPw')}
   $('#fPw').reset();say('',0,'#mPw');startApp(data.user)});
 
 /* ---------- Espace fournisseur : créer un client ---------- */
