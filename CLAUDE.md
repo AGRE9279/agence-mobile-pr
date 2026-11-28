@@ -57,5 +57,6 @@ Les commandes destructives (DELETE, DROP) passées par execute_sql ou apply_migr
 File d'attente `am-outbox` dans localStorage (UUID générés côté client), envoyée à l'événement `online` et toutes les 20 s.
 
 ## Autres fichiers
+- `logo.png` (logo complet avec slogan, pour les documents) ; `icon-192.png` et `icon-512.png` : symbole seul, icône de l'appli et en-tête des écrans de connexion.
 - `Guide-utilisateurs.pdf` (mode d'emploi pour les clients : propriétaires et agents), `Fiche-presentation.pdf` (fiche commerciale), `LISEZ-MOI.txt`.
 - Offre gratuite Supabase : 2 projets actifs max, pause après 7 jours d'inactivité.
