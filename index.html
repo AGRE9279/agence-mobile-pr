@@ -735,7 +735,7 @@ function openWa(num,text,el){
 // Réglages de l'appli (tarifs, paiement) : lus sur le serveur, modifiables dans l'espace fournisseur.
 let REG=LS.get('am-reg',null);
 async function loadReglages(){try{const {data}=await sb.from('am_reglages').select('*').eq('id',1).maybeSingle();if(data){REG=data;LS.set('am-reg',REG)}}catch(e){}}
-const R=()=>REG||{prix_point:ABO.prix,prix_reseau:ABO.prixReseau,seuil_reseau:ABO.seuilReseau,essai_jours:30,payer_num:ABO.payerNum,payer_wa:ABO.payerWa};
+const R=()=>REG||{prix_point:ABO.prix,prix_reseau:ABO.prixReseau,seuil_reseau:ABO.seuilReseau,essai_jours:7,payer_num:ABO.payerNum,payer_wa:ABO.payerWa};
 const tarif=n=>n*(n>=R().seuil_reseau?R().prix_reseau:R().prix_point);
 const prixMois=(t,mois)=>t*(mois>=12?mois-2:mois); // paiement annuel : 2 mois offerts
 const tarifAbo=()=>+abo?.tarif||tarif(+abo?.points||1);
@@ -891,7 +891,7 @@ function renderRelances(){
 }
 function renderRegForm(){
   if($('#fReg').contains(document.activeElement))return;const g=R();
-  $('#gPrix').value=g.prix_point;$('#gReseau').value=g.prix_reseau;$('#gSeuil').value=g.seuil_reseau;$('#gEssai').value=g.essai_jours??30;$('#gNum').value=g.payer_num;$('#gWa').value=g.payer_wa;
+  $('#gPrix').value=g.prix_point;$('#gReseau').value=g.prix_reseau;$('#gSeuil').value=g.seuil_reseau;$('#gEssai').value=g.essai_jours??7;$('#gNum').value=g.payer_num;$('#gWa').value=g.payer_wa;
 }
 
 /* ================= NAVIGATION ================= */
